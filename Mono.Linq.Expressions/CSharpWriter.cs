@@ -12,6 +12,14 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitLambda<T> (Expression<T> node)
 		{
+			VisitLambdaSignature (node);
+			VisitLambdaBody (node);
+
+			return node;
+		}
+
+		void VisitLambdaSignature<T> (Expression<T> node)
+		{
 			WriteType (node.ReturnType);
 			WriteSpace ();
 			WriteIdentifier (node.Name, node);
@@ -32,10 +40,34 @@ namespace Mono.Linq.Expressions {
 			}
 			WriteToken (")");
 			WriteLine ();
+		}
 
-			Visit (node.Body);
+		void VisitLambdaBody<T> (Expression<T> node)
+		{
+			if (node.Body.NodeType != ExpressionType.Block)
+				VisitSingleExpressionBody (node);
+			else
+				VisitBlockExpressionBody (node);
+		}
 
-			return node;
+		void VisitBlockExpressionBody<T> (Expression<T> node)
+		{
+			VisitBlockExpression ((BlockExpression) node.Body, node.ReturnType != typeof (void));
+		}
+
+		void VisitSingleExpressionBody<T> (Expression<T> node)
+		{
+			VisitBlock (() => {
+				if (node.ReturnType != typeof (void)) {
+					WriteKeyword ("return");
+					WriteSpace ();
+				}
+
+				Visit (node.Body);
+
+				WriteToken (";");
+				WriteLine ();
+			});
 		}
 
 		void WriteType (Type type)
@@ -83,36 +115,55 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitBlock (BlockExpression node)
 		{
+			VisitBlockExpression (node, false);
+
+			return node;
+		}
+
+		void VisitBlock (Action action)
+		{
 			WriteToken ("{");
 			WriteLine ();
 			Indent ();
 
-			foreach (var variable in node.Variables) {
-				WriteType (variable.Type);
-				WriteSpace ();
-				WriteIdentifier (variable.Name, variable);
-				WriteToken (";");
-				WriteLine ();
-			}
-
-			if (node.Variables.Count > 0)
-				WriteLine ();
-
-			foreach (var expression in node.Expressions) {
-				Write (expression);
-
-				if (!IsActualStatement (expression))
-					continue;
-
-				WriteToken (";");
-				WriteLine ();
-			}
+			action ();
 
 			Dedent ();
 			WriteToken ("}");
 			WriteLine ();
+		}
 
-			return node;
+		void VisitBlockExpression (BlockExpression node, bool return_last)
+		{
+			VisitBlock (() => {
+				foreach (var variable in node.Variables) {
+					WriteType (variable.Type);
+					WriteSpace ();
+					WriteIdentifier (variable.Name, variable);
+					WriteToken (";");
+					WriteLine ();
+				}
+
+				if (node.Variables.Count > 0)
+					WriteLine ();
+
+				for (int i = 0; i < node.Expressions.Count; i++) {
+					var expression = node.Expressions [i];
+
+					if (return_last && i + 1 == node.Expressions.Count) {
+						WriteKeyword ("return");
+						WriteSpace ();
+					}
+
+					Write (expression);
+
+					if (!IsActualStatement (expression))
+						continue;
+
+					WriteToken (";");
+					WriteLine ();
+				}
+			});
 		}
 
 		static bool IsActualStatement (Expression expression)

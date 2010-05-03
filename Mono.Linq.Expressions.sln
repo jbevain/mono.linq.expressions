@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions", "Mono.Linq.Expressions.csproj", "{0C001D50-4176-45AE-BDC8-BA626508B0CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbg", "..\dbg\dbg.csproj", "{A1939E56-E2B2-44CF-8B29-347E7EE459E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbg", "dbg\dbg.csproj", "{A1939E56-E2B2-44CF-8B29-347E7EE459E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions.Tests", "Test\Mono.Linq.Expressions.Tests.csproj", "{4F200EA1-EFDA-48BF-BAAA-FFD9DE9BCD8F}"
 EndProject

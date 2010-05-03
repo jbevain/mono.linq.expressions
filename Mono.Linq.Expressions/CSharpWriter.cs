@@ -52,21 +52,33 @@ namespace Mono.Linq.Expressions {
 
 		void VisitBlockExpressionBody<T> (Expression<T> node)
 		{
-			VisitBlockExpression ((BlockExpression) node.Body, node.ReturnType != typeof (void));
+			VisitBlockExpression ((BlockExpression) node.Body);
+		}
+
+		static bool IsNotStatement (Expression expression)
+		{
+			switch (expression.NodeType) {
+			case ExpressionType.Conditional:
+				return IsTernaryConditional ((ConditionalExpression) expression);
+			default:
+				return true;
+			}
 		}
 
 		void VisitSingleExpressionBody<T> (Expression<T> node)
 		{
 			VisitBlock (() => {
-				if (node.ReturnType != typeof (void)) {
+				if (node.ReturnType != typeof (void) && IsNotStatement (node.Body)) {
 					WriteKeyword ("return");
 					WriteSpace ();
 				}
 
 				Visit (node.Body);
 
-				WriteToken (";");
-				WriteLine ();
+				if (IsNotStatement (node.Body)) {
+					WriteToken (";");
+					WriteLine ();
+				}
 			});
 		}
 
@@ -77,6 +89,9 @@ namespace Mono.Linq.Expressions {
 
 		static string GetTypeName (Type type)
 		{
+			if (type == typeof (void))
+				return "void";
+
 			switch (Type.GetTypeCode (type)) {
 			case TypeCode.Boolean:
 				return "bool";
@@ -115,7 +130,7 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitBlock (BlockExpression node)
 		{
-			VisitBlockExpression (node, false);
+			VisitBlockExpression (node);
 
 			return node;
 		}
@@ -133,7 +148,7 @@ namespace Mono.Linq.Expressions {
 			WriteLine ();
 		}
 
-		void VisitBlockExpression (BlockExpression node, bool return_last)
+		void VisitBlockExpression (BlockExpression node)
 		{
 			VisitBlock (() => {
 				foreach (var variable in node.Variables) {
@@ -150,7 +165,7 @@ namespace Mono.Linq.Expressions {
 				for (int i = 0; i < node.Expressions.Count; i++) {
 					var expression = node.Expressions [i];
 
-					if (return_last && i + 1 == node.Expressions.Count) {
+					if (IsActualStatement (expression) && RequiresExplicitReturn (node, i, node.Type != typeof (void))) {
 						WriteKeyword ("return");
 						WriteSpace ();
 					}
@@ -166,11 +181,29 @@ namespace Mono.Linq.Expressions {
 			});
 		}
 
+		static bool RequiresExplicitReturn (BlockExpression node, int index, bool return_last)
+		{
+			if (!return_last)
+				return false;
+
+			var last_index = node.Expressions.Count - 1;
+			if (index != last_index)
+				return false;
+
+			var last = node.Expressions [last_index];
+			if (last.NodeType == ExpressionType.Goto && ((GotoExpression) last).Kind == GotoExpressionKind.Return)
+				return false;
+
+			return true;
+		}
+
 		static bool IsActualStatement (Expression expression)
 		{
 			switch (expression.NodeType) {
 			case ExpressionType.Label:
 				return false;
+			case ExpressionType.Conditional:
+				return IsTernaryConditional ((ConditionalExpression) expression);
 			default:
 				return true;
 			}
@@ -298,6 +331,38 @@ namespace Mono.Linq.Expressions {
 			WriteIdentifier (node.Name, node);
 
 			return node;
+		}
+
+		protected override Expression VisitConditional (ConditionalExpression node)
+		{
+			if (IsTernaryConditional (node))
+				throw new NotImplementedException ();
+
+			WriteKeyword ("if");
+			WriteSpace ();
+			WriteToken ("(");
+
+			Visit (node.Test);
+
+			WriteToken (")");
+			WriteLine ();
+
+			Visit (node.IfTrue);
+
+			if (node.IfFalse != null) {
+				WriteKeyword ("else");
+				WriteLine ();
+
+				Visit (node.IfFalse);
+			}
+
+			return node;
+		}
+
+		static bool IsTernaryConditional (ConditionalExpression node)
+		{
+			return node.IfTrue.NodeType != ExpressionType.Block
+				|| (node.IfFalse != null && node.IfFalse.NodeType != ExpressionType.Block);
 		}
 
 		protected override Expression VisitGoto (GotoExpression node)

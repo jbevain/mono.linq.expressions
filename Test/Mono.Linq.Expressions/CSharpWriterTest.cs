@@ -51,6 +51,65 @@ int (int a, int b)
 ", lambda);
 		}
 
+		[Test]
+		public void PopExpression ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+			var b = Expression.Parameter (typeof (int), "b");
+
+			var lambda = Expression.Lambda<Action<int, int>> (Expression.Add (a, b), a, b);
+
+			AssertExpression (@"
+void (int a, int b)
+{
+	a + b;
+}
+", lambda);
+		}
+
+		[Test]
+		public void ReturnFromIfElse ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+			var b = Expression.Parameter (typeof (int), "b");
+
+			var c = Expression.Parameter (typeof (int), "c");
+			var d = Expression.Parameter (typeof (int), "d");
+
+			var lambda = Expression.Lambda<Func<int, int, int>> (
+				Expression.Condition (
+				Expression.GreaterThan (a, b),
+				Expression.Block (
+					new [] { c },
+					Expression.Assign (c, Expression.Multiply (a, b)),
+					c),
+				Expression.Block (
+					new [] { d },
+					Expression.Assign (d, Expression.Divide (a, b)),
+				d)),
+				a, b);
+
+			AssertExpression (@"
+int (int a, int b)
+{
+	if (a > b)
+	{
+		int c;
+
+		c = a * b;
+		return c;
+	}
+	else
+	{
+		int d;
+
+		d = a / b;
+		return d;
+	}
+}
+", lambda);
+		}
+
 		static void AssertExpression (string expected, Expression expression)
 		{
 			var result = new StringWriter ();

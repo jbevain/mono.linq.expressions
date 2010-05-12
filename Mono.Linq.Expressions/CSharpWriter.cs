@@ -319,6 +319,8 @@ namespace Mono.Linq.Expressions {
 				return "+=";
 			case ExpressionType.And:
 				return "&";
+			case ExpressionType.AndAlso:
+				return "&&";
 			case ExpressionType.AndAssign:
 				return "&=";
 			case ExpressionType.Assign:
@@ -363,6 +365,8 @@ namespace Mono.Linq.Expressions {
 				return "|";
 			case ExpressionType.OrAssign:
 				return "|=";
+			case ExpressionType.OrElse:
+				return "||";
 			case ExpressionType.RightShift:
 				return ">>";
 			case ExpressionType.RightShiftAssign:

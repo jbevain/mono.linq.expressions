@@ -110,6 +110,23 @@ int (int a, int b)
 ", lambda);
 		}
 
+		[Test]
+		public void ComplexBooleanLogicalExpression ()
+		{
+			var a = Expression.Parameter (typeof (bool), "a");
+			var b = Expression.Parameter (typeof (bool), "b");
+			var c = Expression.Parameter (typeof (bool), "c");
+
+			var lambda = Expression.Lambda<Func<bool, bool, bool, bool>> (Expression.AndAlso (a, Expression.OrElse (b, c)), a, b, c);
+
+			AssertExpression (@"
+bool (bool a, bool b, bool c)
+{
+	return a && (b || c);
+}
+", lambda);
+		}
+
 		static void AssertExpression (string expected, Expression expression)
 		{
 			var result = new StringWriter ();

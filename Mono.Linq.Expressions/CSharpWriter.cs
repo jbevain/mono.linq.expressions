@@ -151,34 +151,43 @@ namespace Mono.Linq.Expressions {
 		void VisitBlockExpression (BlockExpression node)
 		{
 			VisitBlock (() => {
-				foreach (var variable in node.Variables) {
-					WriteType (variable.Type);
-					WriteSpace ();
-					WriteIdentifier (variable.Name, variable);
-					WriteToken (";");
-					WriteLine ();
-				}
-
-				if (node.Variables.Count > 0)
-					WriteLine ();
-
-				for (int i = 0; i < node.Expressions.Count; i++) {
-					var expression = node.Expressions [i];
-
-					if (IsActualStatement (expression) && RequiresExplicitReturn (node, i, node.Type != typeof (void))) {
-						WriteKeyword ("return");
-						WriteSpace ();
-					}
-
-					Write (expression);
-
-					if (!IsActualStatement (expression))
-						continue;
-
-					WriteToken (";");
-					WriteLine ();
-				}
+				VisitBlockVariables (node);
+				VisitBlockExpressions (node);
 			});
+		}
+
+		void VisitBlockExpressions (BlockExpression node)
+		{
+			for (int i = 0; i < node.Expressions.Count; i++) {
+				var expression = node.Expressions [i];
+
+				if (IsActualStatement (expression) && RequiresExplicitReturn (node, i, node.Type != typeof (void))) {
+					WriteKeyword ("return");
+					WriteSpace ();
+				}
+
+				Write (expression);
+
+				if (!IsActualStatement (expression))
+					continue;
+
+				WriteToken (";");
+				WriteLine ();
+			}
+		}
+
+		void VisitBlockVariables (BlockExpression node)
+		{
+			foreach (var variable in node.Variables) {
+				WriteType (variable.Type);
+				WriteSpace ();
+				WriteIdentifier (variable.Name, variable);
+				WriteToken (";");
+				WriteLine ();
+			}
+
+			if (node.Variables.Count > 0)
+				WriteLine ();
 		}
 
 		static bool RequiresExplicitReturn (BlockExpression node, int index, bool return_last)
@@ -213,7 +222,13 @@ namespace Mono.Linq.Expressions {
 		{
 			if (IsChecked (node.NodeType))
 				VisitCheckedBinary (node);
-			else
+			else if (node.NodeType == ExpressionType.Assign) {
+				Visit (node.Left);
+				WriteSpace ();
+				WriteToken (GetBinaryOperator (node.NodeType));
+				WriteSpace ();
+				Visit (node.Right);
+			} else
 				VisitSimpleBinary (node);
 
 			return node;
@@ -221,11 +236,61 @@ namespace Mono.Linq.Expressions {
 
 		void VisitSimpleBinary (BinaryExpression node)
 		{
-			Visit (node.Left);
+			VisitParenthesizedExpression (node.Left);
 			WriteSpace ();
 			WriteToken (GetBinaryOperator (node.NodeType));
 			WriteSpace ();
-			Visit (node.Right);
+			VisitParenthesizedExpression (node.Right);
+		}
+
+		void VisitParenthesizedExpression (Expression expression)
+		{
+			if (RequiresParentheses (expression)) {
+				WriteToken ("(");
+				Visit (expression);
+				WriteToken (")");
+				return;
+			}
+
+			Visit (expression);
+		}
+
+		static bool RequiresParentheses (Expression expression)
+		{
+			switch (expression.NodeType) {
+			case ExpressionType.Add:
+			case ExpressionType.AddChecked:
+			case ExpressionType.And:
+			case ExpressionType.AndAlso:
+			case ExpressionType.Coalesce:
+			case ExpressionType.Decrement:
+			case ExpressionType.Divide:
+			case ExpressionType.Equal:
+			case ExpressionType.ExclusiveOr:
+			case ExpressionType.GreaterThan:
+			case ExpressionType.GreaterThanOrEqual:
+			case ExpressionType.Increment:
+			case ExpressionType.LeftShift:
+			case ExpressionType.LessThan:
+			case ExpressionType.LessThanOrEqual:
+			case ExpressionType.Modulo:
+			case ExpressionType.Multiply:
+			case ExpressionType.MultiplyChecked:
+			case ExpressionType.Negate:
+			case ExpressionType.Not:
+			case ExpressionType.NotEqual:
+			case ExpressionType.OnesComplement:
+			case ExpressionType.Or:
+			case ExpressionType.OrElse:
+			case ExpressionType.Power:
+			case ExpressionType.RightShift:
+			case ExpressionType.Subtract:
+			case ExpressionType.SubtractChecked:
+			case ExpressionType.UnaryPlus:
+				return true;
+			default:
+				return false;
+			}
 		}
 
 		void VisitCheckedBinary (BinaryExpression node)
@@ -264,6 +329,8 @@ namespace Mono.Linq.Expressions {
 				return "/";
 			case ExpressionType.DivideAssign:
 				return "/=";
+			case ExpressionType.Equal:
+				return "==";
 			case ExpressionType.ExclusiveOr:
 				return "^";
 			case ExpressionType.ExclusiveOrAssign:
@@ -290,6 +357,8 @@ namespace Mono.Linq.Expressions {
 			case ExpressionType.MultiplyAssign:
 			case ExpressionType.MultiplyAssignChecked:
 				return "*=";
+			case ExpressionType.NotEqual:
+				return "!=";
 			case ExpressionType.Or:
 				return "|";
 			case ExpressionType.OrAssign:

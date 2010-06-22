@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
@@ -20,25 +21,18 @@ namespace Mono.Linq.Expressions {
 
 		void VisitLambdaSignature<T> (Expression<T> node)
 		{
-			WriteType (node.ReturnType);
+			VisitType (node.ReturnType);
 			WriteSpace ();
 			WriteIdentifier (node.Name, node);
-			WriteToken ("(");
-			for (int i = 0; i < node.Parameters.Count; i++) {
-				if (i > 0) {
-					WriteToken (",");
-					WriteSpace ();
-				}
-
-				var parameter = node.Parameters [i];
-				WriteType (parameter.Type);
+			VisitParenthesizedList (node.Parameters, parameter => {
+				VisitType (parameter.Type);
 
 				if (!string.IsNullOrEmpty (parameter.Name)) {
 					WriteSpace ();
 					WriteIdentifier (parameter.Name, parameter);
 				}
-			}
-			WriteToken (")");
+			});
+
 			WriteLine ();
 		}
 
@@ -55,42 +49,105 @@ namespace Mono.Linq.Expressions {
 			VisitBlockExpression ((BlockExpression) node.Body);
 		}
 
-		static bool IsNotStatement (Expression expression)
+		static bool IsStatement (Expression expression)
 		{
 			switch (expression.NodeType) {
 			case ExpressionType.Conditional:
-				return IsTernaryConditional ((ConditionalExpression) expression);
+				return !IsTernaryConditional ((ConditionalExpression) expression);
 			default:
-				return true;
+				return false;
 			}
 		}
 
 		void VisitSingleExpressionBody<T> (Expression<T> node)
 		{
 			VisitBlock (() => {
-				if (node.ReturnType != typeof (void) && IsNotStatement (node.Body)) {
+				if (node.ReturnType != typeof (void) && !IsStatement (node.Body)) {
 					WriteKeyword ("return");
 					WriteSpace ();
 				}
 
 				Visit (node.Body);
 
-				if (IsNotStatement (node.Body)) {
+				if (!IsStatement (node.Body)) {
 					WriteToken (";");
 					WriteLine ();
 				}
 			});
 		}
 
-		void WriteType (Type type)
+		void VisitType (Type type)
 		{
-			WriteReference (GetTypeName (type), type);
+			if (type.IsArray) {
+				VisitArrayType (type);
+				return;
+			}
+
+			if (type.IsGenericParameter) {
+				WriteReference (type.Name, type);
+				return;
+			}
+
+			if (type.IsGenericType && type.IsGenericTypeDefinition) {
+				VisitGenericTypeDefinition (type);
+				return;
+			}
+
+			if (type.IsGenericType && !type.IsGenericTypeDefinition) {
+				VisitGenericTypeInstance (type);
+				return;
+			}
+
+			VisitSimpleType (type);
 		}
 
-		static string GetTypeName (Type type)
+		void VisitArrayType (Type type)
+		{
+			VisitType (type.GetElementType ());
+			WriteToken ("[");
+			for (int i = 1; i < type.GetArrayRank (); i++)
+				WriteToken (",");
+			WriteToken ("]");
+		}
+
+		void VisitGenericTypeDefinition (Type type)
+		{
+			WriteReference (CleanGenericName (type), type);
+			WriteToken ("<");
+			var arity = type.GetGenericArguments ().Length;
+			for (int i = 1; i < arity; i++)
+				WriteToken (",");
+			WriteToken (">");
+		}
+
+		void VisitGenericTypeInstance (Type type)
+		{
+			WriteReference (CleanGenericName (type), type);
+
+			VisitList (type.GetGenericArguments (), "<", VisitType, ">");
+		}
+
+		static string CleanGenericName (Type type)
+		{
+			var name = type.Name;
+			var position = name.LastIndexOf ("`");
+			if (position == -1)
+				return name;
+
+			return name.Substring (0, position);
+		}
+
+		void VisitSimpleType (Type type)
+		{
+			WriteReference (GetSimpleTypeName (type), type);
+		}
+
+		static string GetSimpleTypeName (Type type)
 		{
 			if (type == typeof (void))
 				return "void";
+			if (type == typeof (object))
+				return "object";
 
 			switch (Type.GetTypeCode (type)) {
 			case TypeCode.Boolean:
@@ -109,8 +166,6 @@ namespace Mono.Linq.Expressions {
 				return "int";
 			case TypeCode.Int64:
 				return "long";
-			case TypeCode.Object:
-				return "object";
 			case TypeCode.SByte:
 				return "sbyte";
 			case TypeCode.Single:
@@ -179,7 +234,7 @@ namespace Mono.Linq.Expressions {
 		void VisitBlockVariables (BlockExpression node)
 		{
 			foreach (var variable in node.Variables) {
-				WriteType (variable.Type);
+				VisitType (variable.Type);
 				WriteSpace ();
 				WriteIdentifier (variable.Name, variable);
 				WriteToken (";");
@@ -200,7 +255,7 @@ namespace Mono.Linq.Expressions {
 				return false;
 
 			var last = node.Expressions [last_index];
-			if (last.NodeType == ExpressionType.Goto && ((GotoExpression) last).Kind == GotoExpressionKind.Return)
+			if (last.Is (ExpressionType.Goto) && ((GotoExpression) last).Kind == GotoExpressionKind.Return)
 				return false;
 
 			return true;
@@ -222,16 +277,48 @@ namespace Mono.Linq.Expressions {
 		{
 			if (IsChecked (node.NodeType))
 				VisitCheckedBinary (node);
-			else if (node.NodeType == ExpressionType.Assign) {
-				Visit (node.Left);
-				WriteSpace ();
-				WriteToken (GetBinaryOperator (node.NodeType));
-				WriteSpace ();
-				Visit (node.Right);
-			} else
+			else if (node.Is (ExpressionType.Assign))
+				VisitAssign (node);
+			else if (IsPower (node.NodeType))
+				VisitPower (node);
+			else if (node.Is (ExpressionType.ArrayIndex))
+				VisitArrayIndex (node);
+			else
 				VisitSimpleBinary (node);
 
 			return node;
+		}
+
+		void VisitArrayIndex (BinaryExpression node)
+		{
+			Visit (node.Left);
+			WriteToken ("[");
+			Visit (node.Right);
+			WriteToken ("]");
+		}
+
+		void VisitAssign (BinaryExpression node)
+		{
+			Visit (node.Left);
+			WriteSpace ();
+			WriteToken (GetBinaryOperator (node.NodeType));
+			WriteSpace ();
+			Visit (node.Right);
+		}
+
+		void VisitPower (BinaryExpression node)
+		{
+			var pow = Expression.Call (typeof (Math).GetMethod ("Pow"), node.Left, node.Right);
+
+			if (node.Is (ExpressionType.Power))
+				Visit (pow);
+			else if (node.Is (ExpressionType.PowerAssign))
+				Visit (Expression.Assign (node.Left, pow));
+		}
+
+		static bool IsPower (ExpressionType type)
+		{
+			return type == ExpressionType.Power || type == ExpressionType.PowerAssign;
 		}
 
 		void VisitSimpleBinary (BinaryExpression node)
@@ -295,13 +382,18 @@ namespace Mono.Linq.Expressions {
 
 		void VisitCheckedBinary (BinaryExpression node)
 		{
+			VisitChecked (() => VisitSimpleBinary (node));
+		}
+
+		void VisitChecked (Action action)
+		{
 			WriteKeyword ("checked");
 			WriteSpace ();
 			WriteToken ("{");
 
 			WriteSpace ();
 
-			VisitSimpleBinary (node);
+			action ();
 
 			WriteSpace ();
 
@@ -399,6 +491,70 @@ namespace Mono.Linq.Expressions {
 			}
 		}
 
+		protected override Expression VisitUnary (UnaryExpression node)
+		{
+			if (IsChecked (node.NodeType))
+				VisitCheckedUnary (node);
+			else if (node.Is (ExpressionType.Throw))
+				VisitThrow (node);
+			else if (node.Is (ExpressionType.IsTrue))
+				Visit (Expression.Equal (node.Operand, Expression.Constant (true)));
+			else if (node.Is (ExpressionType.IsFalse))
+				Visit (Expression.Equal (node.Operand, Expression.Constant (false)));
+			else if (node.Is (ExpressionType.ArrayLength))
+				Visit (Expression.Property (node.Operand, "Length"));
+			else if (node.Is (ExpressionType.TypeAs))
+				VisitTypeAs (node);
+			else
+				VisitSimpleUnary (node);
+
+			return node;
+		}
+
+		void VisitTypeAs (UnaryExpression node)
+		{
+			Visit (node.Operand);
+			WriteSpace ();
+			WriteKeyword ("as");
+			WriteSpace ();
+			VisitType (node.Type);
+		}
+
+		void VisitThrow (UnaryExpression node)
+		{
+			WriteKeyword ("throw");
+			WriteSpace ();
+			Visit (node.Operand);
+		}
+
+		void VisitCheckedUnary (UnaryExpression node)
+		{
+			VisitChecked (() => VisitSimpleUnary (node));
+		}
+
+		void VisitSimpleUnary (UnaryExpression node)
+		{
+			WriteToken (GetUnaryOperator (node.NodeType));
+			VisitParenthesizedExpression (node);
+		}
+
+		static string GetUnaryOperator (ExpressionType type)
+		{
+			switch (type) {
+			case ExpressionType.UnaryPlus:
+				return "+";
+			case ExpressionType.Not:
+				return "!";
+			case ExpressionType.Negate:
+			case ExpressionType.NegateChecked:
+				return "-";
+			case ExpressionType.OnesComplement:
+				return "~";
+			default:
+				throw new NotImplementedException (type.ToString ());
+			}
+		}
+
 		protected override Expression VisitParameter (ParameterExpression node)
 		{
 			WriteIdentifier (node.Name, node);
@@ -409,8 +565,28 @@ namespace Mono.Linq.Expressions {
 		protected override Expression VisitConditional (ConditionalExpression node)
 		{
 			if (IsTernaryConditional (node))
-				throw new NotImplementedException ();
+				VisitConditionalExpression (node);
+			else
+				VisitConditionalStatement (node);
 
+			return node;
+		}
+
+		void VisitConditionalExpression (ConditionalExpression node)
+		{
+			Visit (node.Test);
+			WriteSpace ();
+			WriteToken ("?");
+			WriteSpace ();
+			Visit (node.IfTrue);
+			WriteSpace ();
+			WriteToken (":");
+			WriteSpace ();
+			Visit (node.IfFalse);
+		}
+
+		void VisitConditionalStatement (ConditionalExpression node)
+		{
 			WriteKeyword ("if");
 			WriteSpace ();
 			WriteToken ("(");
@@ -428,8 +604,6 @@ namespace Mono.Linq.Expressions {
 
 				Visit (node.IfFalse);
 			}
-
-			return node;
 		}
 
 		static bool IsTernaryConditional (ConditionalExpression node)
@@ -455,9 +629,28 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitConstant (ConstantExpression node)
 		{
-			WriteLiteral (node.Value == null ? "null" : node.Value.ToString ());
+			WriteLiteral (GetLiteral (node.Value));
 
 			return node;
+		}
+
+		static string GetLiteral (object value)
+		{
+			if (value == null)
+				return "null";
+
+			switch (Type.GetTypeCode (value.GetType ())) {
+			case TypeCode.Boolean:
+				return ((bool) value) ? "true" : "false";
+			case TypeCode.Char:
+				return "'" + ((char) value) + "'";
+			case TypeCode.String:
+				return "\"" + ((string) value) + "\"";
+			case TypeCode.Int32:
+				return ((IFormattable) value).ToString (null, System.Globalization.CultureInfo.InvariantCulture);
+			default:
+				throw new NotImplementedException ();
+			}
 		}
 
 		protected override Expression VisitLabel (LabelExpression node)
@@ -474,6 +667,252 @@ namespace Mono.Linq.Expressions {
 			Indent ();
 
 			return target;
+		}
+
+		protected override Expression VisitInvocation (InvocationExpression node)
+		{
+			Visit (node.Expression);
+			VisitArguments (node.Arguments);
+
+			return node;
+		}
+
+		protected override Expression VisitMethodCall (MethodCallExpression node)
+		{
+			var method = node.Method;
+
+			if (node.Object != null)
+				Visit (node.Object);
+			else
+				VisitType (method.DeclaringType);
+
+			WriteToken (".");
+
+			WriteReference (method.Name, method);
+
+			VisitArguments (node.Arguments);
+
+			return node;
+		}
+
+		void VisitParenthesizedList<T> (IList<T> list, Action<T> writer)
+		{
+			VisitList (list, "(", writer, ")");
+		}
+
+		void VisitBracedList<T> (IList<T> list, Action<T> writer)
+		{
+			VisitList (list, "{", writer, "}");
+		}
+
+		void VisitBracketedList<T> (IList<T> list, Action<T> writer)
+		{
+			VisitList (list, "[", writer, "]");
+		}
+
+		void VisitList<T> (IList<T> list, string opening, Action<T> writer, string closing)
+		{
+			WriteToken (opening);
+
+			for (int i = 0; i < list.Count; i++) {
+				if (i > 0) {
+					WriteToken (",");
+					WriteSpace ();
+				}
+
+				writer (list [i]);
+			}
+
+			WriteToken (closing);
+		}
+
+		void VisitArguments (IList<Expression> expressions)
+		{
+			VisitParenthesizedList (expressions, e => Visit (e));
+		}
+
+		protected override Expression VisitNew (NewExpression node)
+		{
+			WriteKeyword ("new");
+			WriteSpace ();
+			VisitType (node.Constructor.DeclaringType);
+			VisitArguments (node.Arguments);
+
+			return node;
+		}
+
+		protected override Expression VisitMember (MemberExpression node)
+		{
+			Visit (node.Expression);
+			WriteToken (".");
+			WriteReference (node.Member.Name, node.Member);
+
+			return node;
+		}
+
+		protected override Expression VisitIndex (IndexExpression node)
+		{
+			Visit (node.Object);
+			VisitBracketedList (node.Arguments, expression => Visit (expression));
+
+			return node;
+		}
+
+		protected override Expression VisitNewArray (NewArrayExpression node)
+		{
+			if (node.Is (ExpressionType.NewArrayInit))
+				VisitNewArrayInit (node);
+			else if (node.Is (ExpressionType.NewArrayBounds))
+				VisitNewArrayBounds (node);
+
+			return node;
+		}
+
+		void VisitNewArrayBounds (NewArrayExpression node)
+		{
+			WriteKeyword ("new");
+			WriteSpace ();
+			VisitType (node.Type.GetElementType ());
+
+			VisitBracketedList (node.Expressions, expression => Visit (expression));
+		}
+
+		void VisitNewArrayInit (NewArrayExpression node)
+		{
+			WriteKeyword ("new");
+			WriteSpace ();
+			VisitType (node.Type);
+			WriteSpace ();
+
+			VisitBracedList (node.Expressions, expression => Visit (expression));
+		}
+
+		protected override Expression VisitListInit (ListInitExpression node)
+		{
+			Visit (node.NewExpression);
+			WriteSpace ();
+
+			VisitInitializers (node.Initializers);
+
+			return node;
+		}
+
+		void VisitInitializers (IList<ElementInit> initializers)
+		{
+			VisitBracedList (initializers, initializer => VisitElementInit (initializer));
+		}
+
+		protected override Expression VisitMemberInit (MemberInitExpression node)
+		{
+			Visit (node.NewExpression);
+
+			VisitBindings (node.Bindings);
+
+			return node;
+		}
+
+		void VisitBindings (IList<MemberBinding> bindings)
+		{
+			WriteLine ();
+
+			WriteToken ("{");
+			WriteLine ();
+			Indent ();
+
+			for (int i = 0; i < bindings.Count; i++) {
+				var binding = bindings [i];
+
+				VisitMemberBinding (binding);
+
+				if (i < bindings.Count - 1)
+					WriteToken (",");
+
+				WriteLine ();
+			}
+
+			Dedent ();
+			WriteToken ("}");
+		}
+
+		protected override MemberAssignment VisitMemberAssignment (MemberAssignment node)
+		{
+			VisitMemberBindingMember (node);
+			WriteSpace ();
+
+			Visit (node.Expression);
+
+			return node;
+		}
+
+		void VisitMemberBindingMember (MemberBinding node)
+		{
+			WriteReference (node.Member.Name, node.Member);
+			WriteSpace ();
+			WriteToken ("=");
+		}
+
+		protected override MemberListBinding VisitMemberListBinding (MemberListBinding node)
+		{
+			VisitMemberBindingMember (node);
+			WriteSpace ();
+
+			VisitInitializers (node.Initializers);
+
+			return node;
+		}
+
+		protected override MemberMemberBinding VisitMemberMemberBinding (MemberMemberBinding node)
+		{
+			VisitMemberBindingMember (node);
+
+			VisitBindings (node.Bindings);
+
+			return node;
+		}
+
+		protected override ElementInit VisitElementInit (ElementInit node)
+		{
+			if (node.Arguments.Count == 1)
+				Visit (node.Arguments [0]);
+			else
+				VisitBracedList (node.Arguments, expression => Visit (expression));
+
+			return node;
+		}
+
+		protected override Expression VisitTypeBinary (TypeBinaryExpression node)
+		{
+			if (node.Is (ExpressionType.TypeEqual))
+				VisitTypeEqual (node);
+			else if (node.Is (ExpressionType.TypeIs))
+				VisitTypeIs (node);
+
+			return node;
+		}
+
+		void VisitTypeIs (TypeBinaryExpression node)
+		{
+			Visit (node.Expression);
+			WriteSpace ();
+			WriteKeyword ("is");
+			WriteSpace ();
+			VisitType (node.TypeOperand);
+		}
+
+		void VisitTypeEqual (TypeBinaryExpression node)
+		{
+			Visit (Expression.Call (
+				node.Expression,
+				typeof (object).GetMethod ("GetType", Type.EmptyTypes)));
+
+			WriteSpace ();
+			WriteToken ("==");
+			WriteSpace ();
+
+			WriteKeyword ("typeof");
+			WriteToken ("(");
+			VisitType (node.TypeOperand);
+			WriteToken (")");
 		}
 	}
 }

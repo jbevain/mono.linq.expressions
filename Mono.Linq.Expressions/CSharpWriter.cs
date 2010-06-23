@@ -812,7 +812,7 @@ namespace Mono.Linq.Expressions {
 			case TypeCode.Int32:
 				return ((IFormattable) value).ToString (null, System.Globalization.CultureInfo.InvariantCulture);
 			default:
-				throw new NotImplementedException ();
+				return value.ToString ();
 			}
 		}
 

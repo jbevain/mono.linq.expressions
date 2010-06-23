@@ -40,6 +40,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mono.Linq.Expressions\BaseExpressionTest.cs" />
+    <Compile Include="Mono.Linq.Expressions\PredicateBuilderTest.cs" />
     <Compile Include="Mono.Linq.Expressions\CSharpWriterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>

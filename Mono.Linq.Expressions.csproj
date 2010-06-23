@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mono.Linq.Expressions\PredicateBuilder.cs" />
     <Compile Include="Mono.Linq.Expressions\Extensions.cs" />
     <Compile Include="Mono.Linq.Expressions\CSharp.cs" />
     <Compile Include="Mono.Linq.Expressions\CSharpWriter.cs" />

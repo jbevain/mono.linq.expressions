@@ -1,4 +1,4 @@
-﻿TODO:
+TODO:
 	And
 	Convert
 	ConvertChecked
@@ -7,16 +7,12 @@
 	GreaterThanOrEqual
 	Lambda
 	LeftShift
-	LessThan
 	LessThanOrEqual
-	Modulo
-	Multiply
 	MultiplyChecked
 	Negate
 	UnaryPlus
 	NegateChecked
 	Not
-	NotEqual
 	Or
 	Quote
 	RightShift
@@ -27,12 +23,8 @@
 	Dynamic
 	Default
 	Extension
-	Goto
 	Increment
 	RuntimeVariables
-	Loop
-	Switch
-	Try
 	Unbox
 	AddAssignChecked
 	MultiplyAssignChecked
@@ -87,3 +79,11 @@ DONE:
 	TypeEqual
 	TypeAs
 	TypeIs
+	Modulo
+	Multiply
+	Loop
+	Switch
+	Try
+	Goto
+	LessThan
+	NotEqual

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 
@@ -498,6 +499,147 @@ bool TypeIs(object o)
 	return o is List<int>;
 }
 ", expression, o);
+		}
+
+		static Expression CallWrite (object operand)
+		{
+			return Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { operand.GetType () }), Expression.Constant (operand));
+		}
+
+		[Test]
+		public void ExceptionHandling ()
+		{
+			var i = Expression.Parameter (typeof (int), "i");
+			var nre = Expression.Parameter (typeof (NullReferenceException), "e");
+
+			var body = Expression.Block (
+				CallWrite (0),
+				Expression.MakeTry (null,
+					CallWrite (1),
+					CallWrite (4),
+					null,
+					new [] {
+						Expression.Catch (typeof (OutOfMemoryException), CallWrite (2), Expression.GreaterThan (i, Expression.Constant (10))),
+						Expression.Catch (nre, CallWrite (3))
+					}));
+
+			AssertLambda<Action<int>> (@"
+void ExceptionHandling(int i)
+{
+	Console.WriteLine(0);
+	try
+	{
+		Console.WriteLine(1);
+	}
+	catch (OutOfMemoryException) if (i > 10)
+	{
+		Console.WriteLine(2);
+	}
+	catch (NullReferenceException e)
+	{
+		Console.WriteLine(3);
+	}
+	finally
+	{
+		Console.WriteLine(4);
+	}
+}
+", body, i);
+		}
+
+		[Test]
+		public void Loop ()
+		{
+			var @break = Expression.Label ();
+			var @continue = Expression.Label ();
+
+			var i = Expression.Parameter (typeof (int), "i");
+			var body = Expression.Block (
+				new [] { i },
+				Expression.Assign (i, Expression.Constant (0)),
+				Expression.Loop (
+					Expression.Block (
+						Expression.Condition (
+							Expression.NotEqual (
+								Expression.Modulo (i, Expression.Constant (2)),
+								Expression.Constant (0)),
+							Expression.Continue (@continue),
+							Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (int) }), i)),
+						Expression.Assign (i, Expression.Add (i, Expression.Constant (1))),
+						Expression.Condition (
+							Expression.LessThan (i, Expression.Constant (10)),
+							Expression.Continue (@continue),
+							Expression.Break (@break))),
+					@break,
+					@continue));
+
+			AssertLambda<Action> (@"
+void Loop()
+{
+	int i;
+
+	i = 0;
+	for (;;)
+	{
+		if ((i % 2) != 0)
+		{
+			continue;
+		}
+		else
+		{
+			Console.WriteLine(i);
+		}
+		i = i + 1;
+		if (i < 10)
+		{
+			continue;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+", body);
+		}
+
+		[Test]
+		public void Switch ()
+		{
+			var i = Expression.Parameter (typeof (int), "i");
+
+			var body = Expression.Switch (
+				i,
+				i,
+				Expression.SwitchCase (
+					Expression.Add (i, Expression.Constant (2)),
+					Expression.Constant (0)),
+				Expression.SwitchCase (
+					Expression.Multiply (i, Expression.Constant (4)),
+					Expression.Constant (2),
+					Expression.Constant (4)));
+
+			AssertLambda<Func<int, int>> (@"
+int Switch(int i)
+{
+	switch (i)
+	{
+		case 0:
+		{
+			return i + 2;
+		}
+		case 2:
+		case 4:
+		{
+			return i * 4;
+		}
+		default:
+		{
+			return i;
+		}
+	}
+}
+", body, i);
 		}
 
 		[MethodImpl (MethodImplOptions.NoInlining)]

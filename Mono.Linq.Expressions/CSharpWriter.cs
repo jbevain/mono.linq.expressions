@@ -54,10 +54,31 @@ namespace Mono.Linq.Expressions {
 			switch (expression.NodeType) {
 			case ExpressionType.Conditional:
 				return !IsTernaryConditional ((ConditionalExpression) expression);
+			case ExpressionType.Try:
+			case ExpressionType.Loop:
+			case ExpressionType.Switch:
+				return true;
 			default:
 				return false;
 			}
 		}
+
+		static bool IsActualStatement (Expression expression)
+		{
+			switch (expression.NodeType) {
+			case ExpressionType.Label:
+				return false;
+			case ExpressionType.Conditional:
+				return IsTernaryConditional ((ConditionalExpression) expression);
+			case ExpressionType.Try:
+			case ExpressionType.Loop:
+			case ExpressionType.Switch:
+				return false;
+			default:
+				return true;
+			}
+		}
+
 
 		void VisitSingleExpressionBody<T> (Expression<T> node)
 		{
@@ -259,18 +280,6 @@ namespace Mono.Linq.Expressions {
 				return false;
 
 			return true;
-		}
-
-		static bool IsActualStatement (Expression expression)
-		{
-			switch (expression.NodeType) {
-			case ExpressionType.Label:
-				return false;
-			case ExpressionType.Conditional:
-				return IsTernaryConditional ((ConditionalExpression) expression);
-			default:
-				return true;
-			}
 		}
 
 		protected override Expression VisitBinary (BinaryExpression node)
@@ -596,20 +605,20 @@ namespace Mono.Linq.Expressions {
 			WriteToken (")");
 			WriteLine ();
 
-			Visit (node.IfTrue);
+			VisitAsBlock (node.IfTrue);
 
 			if (node.IfFalse != null) {
 				WriteKeyword ("else");
 				WriteLine ();
 
-				Visit (node.IfFalse);
+				VisitAsBlock (node.IfFalse);
 			}
 		}
 
 		static bool IsTernaryConditional (ConditionalExpression node)
 		{
-			return node.IfTrue.NodeType != ExpressionType.Block
-				|| (node.IfFalse != null && node.IfFalse.NodeType != ExpressionType.Block);
+			return node.Type != typeof (void) && (node.IfTrue.NodeType != ExpressionType.Block
+				|| (node.IfFalse != null && node.IfFalse.NodeType != ExpressionType.Block));
 		}
 
 		protected override Expression VisitGoto (GotoExpression node)
@@ -620,8 +629,19 @@ namespace Mono.Linq.Expressions {
 				WriteSpace ();
 				Visit (node.Value);
 				break;
+			case GotoExpressionKind.Break:
+				WriteKeyword ("break");
+				break;
+			case GotoExpressionKind.Continue:
+				WriteKeyword ("continue");
+				break;
+			case GotoExpressionKind.Goto:
+				WriteKeyword ("goto");
+				WriteSpace ();
+				Visit (node.Value);
+				break;
 			default:
-				throw new NotImplementedException ();
+				throw new NotSupportedException ();
 			}
 
 			return node;
@@ -913,6 +933,118 @@ namespace Mono.Linq.Expressions {
 			WriteToken ("(");
 			VisitType (node.TypeOperand);
 			WriteToken (")");
+		}
+
+		protected override Expression VisitTry (TryExpression node)
+		{
+			WriteKeyword ("try");
+			WriteLine ();
+			VisitAsBlock (node.Body);
+
+			foreach (var handler in node.Handlers)
+				VisitCatchBlock (handler);
+
+			if (node.Fault != null) {
+				WriteKeyword ("fault");
+				WriteLine ();
+				VisitAsBlock (node.Fault);
+			}
+
+			if (node.Finally != null) {
+				WriteKeyword ("finally");
+				WriteLine ();
+				VisitAsBlock (node.Finally);
+			}
+
+			return node;
+		}
+
+		void VisitAsBlock (Expression node)
+		{
+			Visit (node.Is (ExpressionType.Block) ? node : Expression.Block (node));
+		}
+
+		protected override CatchBlock VisitCatchBlock (CatchBlock node)
+		{
+			WriteKeyword ("catch");
+
+			WriteSpace ();
+			WriteToken ("(");
+			VisitType (node.Test);
+			if (node.Variable != null) {
+				WriteSpace ();
+				WriteIdentifier (node.Variable.Name, node.Variable);
+			}
+			WriteToken (")");
+
+			if (node.Filter != null) {
+				WriteSpace ();
+				WriteKeyword ("if");
+				WriteSpace ();
+				WriteToken ("(");
+				Visit (node.Filter);
+				WriteToken (")");
+			}
+			WriteLine ();
+
+			VisitAsBlock (node.Body);
+
+			return node;
+		}
+
+		protected override Expression VisitLoop (LoopExpression node)
+		{
+			WriteKeyword ("for");
+			WriteSpace ();
+			WriteToken ("(");
+			WriteToken (";");
+			WriteToken (";");
+			WriteToken (")");
+			WriteLine ();
+
+			Visit (node.Body);
+
+			return node;
+		}
+
+		protected override Expression VisitSwitch (SwitchExpression node)
+		{
+			WriteKeyword ("switch");
+			WriteSpace ();
+			WriteToken ("(");
+			Visit (node.SwitchValue);
+			WriteToken (")");
+			WriteLine ();
+
+			VisitBlock (() => {
+				foreach (var @case in node.Cases)
+					VisitSwitchCase (@case);
+
+				if (node.DefaultBody != null) {
+					WriteKeyword ("default");
+					WriteToken (":");
+					WriteLine ();
+
+					VisitAsBlock (node.DefaultBody);
+				}
+			});
+
+			return node;
+		}
+
+		protected override SwitchCase VisitSwitchCase (SwitchCase node)
+		{
+			foreach (var value in node.TestValues) {
+				WriteKeyword ("case");
+				WriteSpace ();
+				Visit (value);
+				WriteToken (":");
+				WriteLine ();
+			}
+
+			VisitAsBlock (node.Body);
+
+			return node;
 		}
 	}
 }

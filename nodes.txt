@@ -1,39 +1,14 @@
 TODO:
-	And
 	Convert
 	ConvertChecked
-	Equal
-	ExclusiveOr
-	GreaterThanOrEqual
 	Lambda
-	LeftShift
-	LessThanOrEqual
-	MultiplyChecked
-	Negate
-	UnaryPlus
-	NegateChecked
-	Not
-	Or
 	Quote
-	RightShift
-	Subtract
-	SubtractChecked
 	DebugInfo
-	Decrement
 	Dynamic
 	Default
 	Extension
-	Increment
 	RuntimeVariables
 	Unbox
-	AddAssignChecked
-	MultiplyAssignChecked
-	SubtractAssignChecked
-	PreIncrementAssign
-	PreDecrementAssign
-	PostIncrementAssign
-	PostDecrementAssign
-	OnesComplement
 
 DONE:
 
@@ -87,3 +62,28 @@ DONE:
 	Goto
 	LessThan
 	NotEqual
+	PreIncrementAssign
+	PreDecrementAssign
+	PostIncrementAssign
+	PostDecrementAssign
+	Decrement
+	Increment
+	Subtract
+	And
+	ExclusiveOr
+	LeftShift
+	MultiplyChecked
+	AddAssignChecked
+	MultiplyAssignChecked
+	SubtractAssignChecked
+	Or
+	RightShift
+	SubtractChecked
+	Equal
+	GreaterThanOrEqual
+	LessThanOrEqual
+	Negate
+	UnaryPlus
+	NegateChecked
+	Not
+	OnesComplement

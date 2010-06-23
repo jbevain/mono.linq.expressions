@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
+
 using NUnit.Framework;
 
 namespace Mono.Linq.Expressions {
@@ -114,18 +114,124 @@ int (int a, int b)
 		}
 
 		[Test]
-		public void ComplexBooleanLogicalExpression ()
+		public void LogicalOperators ()
 		{
 			var a = Expression.Parameter (typeof (bool), "a");
 			var b = Expression.Parameter (typeof (bool), "b");
-			var c = Expression.Parameter (typeof (bool), "c");
 
-			var lambda = Expression.Lambda<Func<bool, bool, bool, bool>> (Expression.AndAlso (a, Expression.OrElse (b, c)), a, b, c);
+			var lambda = Expression.Lambda<Func<bool, bool, bool>> (
+				Expression.Block (
+					Expression.Assign (a, Expression.AndAlso (a, b)),
+					Expression.Assign (a, Expression.OrElse (a, b)),
+					a),
+				a, b);
 
 			AssertExpression (@"
-bool (bool a, bool b, bool c)
+bool (bool a, bool b)
 {
-	return a && (b || c);
+	a = a && b;
+	a = a || b;
+	return a;
+}
+", lambda);
+		}
+
+		[Test]
+		public void BinaryBooleanOperators ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+			var b = Expression.Parameter (typeof (int), "b");
+			var c = Expression.Parameter (typeof (bool), "c");
+
+			var lambda = Expression.Lambda<Func<int, int, bool>> (
+				Expression.Block (
+					new [] { c },
+					Expression.Assign (c, Expression.GreaterThan (a, b)),
+					Expression.Assign (c, Expression.GreaterThanOrEqual (a, b)),
+					Expression.Assign (c, Expression.LessThan (a, b)),
+					Expression.Assign (c, Expression.LessThanOrEqual (a, b)),
+					Expression.Assign (c, Expression.Equal (a, b)),
+					Expression.Assign (c, Expression.NotEqual (a, b)),
+					c),
+				a, b);
+
+			AssertExpression (@"
+bool (int a, int b)
+{
+	bool c;
+
+	c = a > b;
+	c = a >= b;
+	c = a < b;
+	c = a <= b;
+	c = a == b;
+	c = a != b;
+	return c;
+}
+", lambda);
+		}
+
+
+		[Test]
+		public void BinaryOperators ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+			var b = Expression.Parameter (typeof (int), "b");
+
+			var lambda = Expression.Lambda<Func<int, int, int>> (
+				Expression.Block (
+					Expression.Assign (a, Expression.Add (a, b)),
+					Expression.Assign (a, Expression.And (a, b)),
+					Expression.Assign (a, Expression.Divide (a, b)),
+					Expression.Assign (a, Expression.ExclusiveOr (a, b)),
+					Expression.Assign (a, Expression.LeftShift (a, b)),
+					Expression.Assign (a, Expression.Modulo (a, b)),
+					Expression.Assign (a, Expression.Multiply (a, b)),
+					Expression.Assign (a, Expression.Or (a, b)),
+					Expression.Assign (a, Expression.RightShift (a, b)),
+					Expression.Assign (a, Expression.Subtract (a, b)),
+					a),
+				a, b);
+
+			AssertExpression (@"
+int (int a, int b)
+{
+	a = a + b;
+	a = a & b;
+	a = a / b;
+	a = a ^ b;
+	a = a << b;
+	a = a % b;
+	a = a * b;
+	a = a | b;
+	a = a >> b;
+	a = a - b;
+	return a;
+}
+", lambda);
+		}
+
+		[Test]
+		public void BinaryCheckedOperators ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+			var b = Expression.Parameter (typeof (int), "b");
+
+			var lambda = Expression.Lambda<Func<int, int, int>> (
+				Expression.Block (
+					Expression.Assign (a, Expression.AddChecked (a, b)),
+					Expression.Assign (a, Expression.MultiplyChecked (a, b)),
+					Expression.Assign (a, Expression.SubtractChecked (a, b)),
+					a),
+				a, b);
+
+			AssertExpression (@"
+int (int a, int b)
+{
+	a = checked { a + b };
+	a = checked { a * b };
+	a = checked { a - b };
+	return a;
 }
 ", lambda);
 		}
@@ -143,6 +249,7 @@ bool (bool a, bool b, bool c)
 					Expression.DivideAssign (a, b),
 					Expression.ExclusiveOrAssign (a, b),
 					Expression.LeftShiftAssign (a, b),
+					Expression.ModuloAssign (a, b),
 					Expression.MultiplyAssign (a, b),
 					Expression.OrAssign (a, b),
 					Expression.RightShiftAssign (a, b),
@@ -158,6 +265,7 @@ int (int a, int b)
 	a /= b;
 	a ^= b;
 	a <<= b;
+	a %= b;
 	a *= b;
 	a |= b;
 	a >>= b;
@@ -166,6 +274,96 @@ int (int a, int b)
 }
 ", lambda);
 		}
+
+		[Test]
+		public void BinaryAssignCheckedOperators ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+			var b = Expression.Parameter (typeof (int), "b");
+
+			var lambda = Expression.Lambda<Func<int, int, int>> (
+				Expression.Block (
+					Expression.AddAssignChecked (a, b),
+					Expression.MultiplyAssignChecked (a, b),
+					Expression.SubtractAssignChecked (a, b),
+					a),
+				a, b);
+
+			AssertExpression (@"
+int (int a, int b)
+{
+	checked { a += b };
+	checked { a *= b };
+	checked { a -= b };
+	return a;
+}
+", lambda);
+		}
+
+		[Test]
+		public void UnaryOperators ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+
+			var lambda = Expression.Lambda<Func<int, int>> (
+				Expression.Block (
+					Expression.Assign (a, Expression.UnaryPlus (a)),
+					Expression.Assign (a, Expression.Negate (a)),
+					Expression.Assign (a, Expression.OnesComplement (a)),
+					a),
+				a);
+
+			AssertExpression (@"
+int (int a)
+{
+	a = +a;
+	a = -a;
+	a = ~a;
+	return a;
+}
+", lambda);
+		}
+
+		[Test]
+		public void UnaryCheckedOperators ()
+		{
+			var a = Expression.Parameter (typeof (int), "a");
+
+			var lambda = Expression.Lambda<Func<int, int>> (
+				Expression.Block (
+					Expression.Assign (a, Expression.NegateChecked (a)),
+					a),
+				a);
+
+			AssertExpression (@"
+int (int a)
+{
+	a = checked { -a };
+	return a;
+}
+", lambda);
+		}
+
+		[Test]
+		public void UnaryLogicalOperators ()
+		{
+			var a = Expression.Parameter (typeof (bool), "a");
+
+			var lambda = Expression.Lambda<Func<bool, bool>> (
+				Expression.Block (
+					Expression.Assign (a, Expression.Not (a)),
+					a),
+				a);
+
+			AssertExpression (@"
+bool (bool a)
+{
+	a = !a;
+	return a;
+}
+", lambda);
+		}
+
 
 		[Test]
 		public void Power ()
@@ -243,16 +441,16 @@ string (string a, string b)
 		}
 
 		[Test]
-		public void ThrowNewNotImplementedException ()
+		public void ThrowNewNotSupportedException ()
 		{
 			var lambda = Expression.Lambda<Action> (
 				Expression.Throw (
-					Expression.New (typeof (NotImplementedException))));
+					Expression.New (typeof (NotSupportedException))));
 
 			AssertExpression (@"
 void ()
 {
-	throw new NotImplementedException();
+	throw new NotSupportedException();
 }
 ", lambda);
 		}
@@ -638,6 +836,34 @@ int Switch(int i)
 			return i;
 		}
 	}
+}
+", body, i);
+		}
+
+		[Test]
+		public void IncrementDecrement ()
+		{
+			var i = Expression.Parameter (typeof (int), "i");
+
+			var body = Expression.Block (
+				Expression.Assign (i, Expression.Increment (i)),
+				Expression.Assign (i, Expression.Decrement (i)),
+				Expression.PreIncrementAssign (i),
+				Expression.PostIncrementAssign (i),
+				Expression.PreDecrementAssign (i),
+				Expression.PostDecrementAssign (i),
+				i);
+
+			AssertLambda<Func<int, int>> (@"
+int IncrementDecrement(int i)
+{
+	i = i + 1;
+	i = i - 1;
+	++i;
+	i++;
+	--i;
+	i--;
+	return i;
 }
 ", body, i);
 		}

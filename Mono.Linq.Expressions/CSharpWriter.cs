@@ -502,22 +502,100 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitUnary (UnaryExpression node)
 		{
-			if (IsChecked (node.NodeType))
+			if (IsChecked (node.NodeType)) {
 				VisitCheckedUnary (node);
-			else if (node.Is (ExpressionType.Throw))
+				return node;
+			}
+
+			switch (node.NodeType) {
+			case ExpressionType.Throw:
 				VisitThrow (node);
-			else if (node.Is (ExpressionType.IsTrue))
-				Visit (Expression.Equal (node.Operand, Expression.Constant (true)));
-			else if (node.Is (ExpressionType.IsFalse))
-				Visit (Expression.Equal (node.Operand, Expression.Constant (false)));
-			else if (node.Is (ExpressionType.ArrayLength))
-				Visit (Expression.Property (node.Operand, "Length"));
-			else if (node.Is (ExpressionType.TypeAs))
+				break;
+			case ExpressionType.IsTrue:
+				VisitIsTrue (node);
+				break;
+			case ExpressionType.IsFalse:
+				VisitIsFalse (node);
+				break;
+			case ExpressionType.ArrayLength:
+				VisitArrayLength (node);
+				break;
+			case ExpressionType.TypeAs:
 				VisitTypeAs (node);
-			else
+				break;
+			case ExpressionType.Increment:
+				VisitIncrement (node);
+				break;
+			case ExpressionType.Decrement:
+				VisitDecrement (node);
+				break;
+			case ExpressionType.PreDecrementAssign:
+				VisitPreDecrementAssign (node);
+				break;
+			case ExpressionType.PostDecrementAssign:
+				VisitPostDecrementAssign (node);
+				break;
+			case ExpressionType.PreIncrementAssign:
+				VisitPreIncrementAssign (node);
+				break;
+			case ExpressionType.PostIncrementAssign:
+				VisitPostIncrementAssign (node);
+				break;
+			default:
 				VisitSimpleUnary (node);
+				break;
+			}
 
 			return node;
+		}
+
+		void VisitPostIncrementAssign (UnaryExpression node)
+		{
+			Visit (node.Operand);
+			WriteToken ("++");
+		}
+
+		void VisitPreIncrementAssign (UnaryExpression node)
+		{
+			WriteToken ("++");
+			Visit (node.Operand);
+		}
+
+		void VisitPostDecrementAssign (UnaryExpression node)
+		{
+			Visit (node.Operand);
+			WriteToken ("--");
+		}
+
+		void VisitPreDecrementAssign (UnaryExpression node)
+		{
+			WriteToken ("--");
+			Visit (node.Operand);
+		}
+
+		void VisitDecrement (UnaryExpression node)
+		{
+			Visit (Expression.Subtract (node.Operand, Expression.Constant (1)));
+		}
+
+		void VisitIncrement (UnaryExpression node)
+		{
+			Visit (Expression.Add (node.Operand, Expression.Constant (1)));
+		}
+
+		void VisitIsTrue (UnaryExpression node)
+		{
+			Visit (Expression.Equal (node.Operand, Expression.Constant (true)));
+		}
+
+		void VisitIsFalse (UnaryExpression node)
+		{
+			Visit (Expression.Equal (node.Operand, Expression.Constant (false)));
+		}
+
+		void VisitArrayLength (UnaryExpression node)
+		{
+			Visit (Expression.Property (node.Operand, "Length"));
 		}
 
 		void VisitTypeAs (UnaryExpression node)
@@ -544,7 +622,7 @@ namespace Mono.Linq.Expressions {
 		void VisitSimpleUnary (UnaryExpression node)
 		{
 			WriteToken (GetUnaryOperator (node.NodeType));
-			VisitParenthesizedExpression (node);
+			VisitParenthesizedExpression (node.Operand);
 		}
 
 		static string GetUnaryOperator (ExpressionType type)

@@ -1,14 +1,8 @@
 TODO:
-	Convert
-	ConvertChecked
-	Lambda
-	Quote
 	DebugInfo
 	Dynamic
-	Default
 	Extension
 	RuntimeVariables
-	Unbox
 
 DONE:
 
@@ -87,3 +81,9 @@ DONE:
 	NegateChecked
 	Not
 	OnesComplement
+	Default
+	Convert
+	ConvertChecked
+	Unbox
+	Lambda
+	Quote

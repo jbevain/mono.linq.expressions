@@ -868,6 +868,85 @@ int IncrementDecrement(int i)
 ", body, i);
 		}
 
+		[Test]
+		public void Default ()
+		{
+			var body = Expression.Default (typeof (int));
+
+			AssertLambda<Func<int>> (@"
+int Default()
+{
+	return default(int);
+}
+", body);
+		}
+
+		[Test]
+		public void Convert ()
+		{
+			var o = Expression.Parameter (typeof (object), "o");
+
+			var body = Expression.Convert (o, typeof (string));
+
+			AssertLambda<Func<object, string>> (@"
+string Convert(object o)
+{
+	return (string)o;
+}
+", body, o);
+		}
+
+		[Test]
+		public void ConvertChecked ()
+		{
+			var i = Expression.Parameter (typeof (int), "i");
+
+			var body = Expression.ConvertChecked (i, typeof (short));
+
+			AssertLambda<Func<int, short>> (@"
+short ConvertChecked(int i)
+{
+	return checked { (short)i };
+}
+", body, i);
+		}
+
+		[Test]
+		public void Unbox ()
+		{
+			var o = Expression.Parameter (typeof (object), "o");
+
+			var body = Expression.Unbox (o, typeof (int));
+
+			AssertLambda<Func<object, int>> (@"
+int Unbox(object o)
+{
+	return (int)o;
+}
+", body, o);
+		}
+
+		[Test]
+		public void QuoteLambda ()
+		{
+			var s = Expression.Parameter (typeof (string), "s");
+
+			var lambda = Expression.Lambda<Func<string, Expression<Func<string>>>> (
+				Expression.Quote (
+					Expression.Lambda<Func<string>> (s, new ParameterExpression [0])),
+				s);
+
+			AssertExpression (@"
+Expression<Func<string>> (string s)
+{
+	return () =>
+	{
+		return s;
+	};
+}
+", lambda);
+		}
+
 		[MethodImpl (MethodImplOptions.NoInlining)]
 		static void AssertLambda<TDelegate> (string expected, Expression body, params ParameterExpression [] parameters) where TDelegate : class
 		{
@@ -885,7 +964,7 @@ int IncrementDecrement(int i)
 			return stack_frame.GetMethod ().Name;
 		}
 
-		static void AssertExpression (string expected, Expression expression)
+		static void AssertExpression (string expected, LambdaExpression expression)
 		{
 			var result = new StringWriter ();
 			var csharp = new CSharpWriter (new TextFormatter (result));

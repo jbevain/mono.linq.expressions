@@ -11,19 +11,36 @@ namespace Mono.Linq.Expressions {
 		{
 		}
 
+		public override void Write (LambdaExpression expression)
+		{
+			VisitLambdaSignature (expression);
+			VisitLambdaBody (expression);
+		}
+
 		protected override Expression VisitLambda<T> (Expression<T> node)
 		{
-			VisitLambdaSignature (node);
+			VisitParameters (node);
+			WriteSpace ();
+			WriteToken ("=>");
+			WriteLine ();
+
 			VisitLambdaBody (node);
 
 			return node;
 		}
 
-		void VisitLambdaSignature<T> (Expression<T> node)
+		void VisitLambdaSignature (LambdaExpression node)
 		{
 			VisitType (node.ReturnType);
 			WriteSpace ();
 			WriteIdentifier (node.Name, node);
+			VisitParameters (node);
+
+			WriteLine ();
+		}
+
+		void VisitParameters (LambdaExpression node)
+		{
 			VisitParenthesizedList (node.Parameters, parameter => {
 				VisitType (parameter.Type);
 
@@ -32,11 +49,9 @@ namespace Mono.Linq.Expressions {
 					WriteIdentifier (parameter.Name, parameter);
 				}
 			});
-
-			WriteLine ();
 		}
 
-		void VisitLambdaBody<T> (Expression<T> node)
+		void VisitLambdaBody (LambdaExpression node)
 		{
 			if (node.Body.NodeType != ExpressionType.Block)
 				VisitSingleExpressionBody (node);
@@ -44,7 +59,7 @@ namespace Mono.Linq.Expressions {
 				VisitBlockExpressionBody (node);
 		}
 
-		void VisitBlockExpressionBody<T> (Expression<T> node)
+		void VisitBlockExpressionBody (LambdaExpression node)
 		{
 			VisitBlockExpression ((BlockExpression) node.Body);
 		}
@@ -80,7 +95,7 @@ namespace Mono.Linq.Expressions {
 		}
 
 
-		void VisitSingleExpressionBody<T> (Expression<T> node)
+		void VisitSingleExpressionBody (LambdaExpression node)
 		{
 			VisitBlock (() => {
 				if (node.ReturnType != typeof (void) && !IsStatement (node.Body)) {
@@ -221,7 +236,6 @@ namespace Mono.Linq.Expressions {
 
 			Dedent ();
 			WriteToken ("}");
-			WriteLine ();
 		}
 
 		void VisitBlockExpression (BlockExpression node)
@@ -488,7 +502,6 @@ namespace Mono.Linq.Expressions {
 			switch (type) {
 			case ExpressionType.AddAssignChecked:
 			case ExpressionType.AddChecked:
-			case ExpressionType.ConvertChecked:
 			case ExpressionType.MultiplyAssignChecked:
 			case ExpressionType.MultiplyChecked:
 			case ExpressionType.NegateChecked:
@@ -541,12 +554,36 @@ namespace Mono.Linq.Expressions {
 			case ExpressionType.PostIncrementAssign:
 				VisitPostIncrementAssign (node);
 				break;
+			case ExpressionType.ConvertChecked:
+				VisitConvertChecked (node);
+				break;
+			case ExpressionType.Convert:
+			case ExpressionType.Unbox:
+				VisitConvert (node);
+				break;
+			case ExpressionType.Quote:
+				Visit (node.Operand);
+				break;
 			default:
 				VisitSimpleUnary (node);
 				break;
 			}
 
 			return node;
+		}
+
+		void VisitConvert (UnaryExpression node)
+		{
+			WriteToken ("(");
+			VisitType (node.Type);
+			WriteToken (")");
+
+			Visit (node.Operand);
+		}
+
+		void VisitConvertChecked (UnaryExpression node)
+		{
+			VisitChecked (() => VisitConvert (node));
 		}
 
 		void VisitPostIncrementAssign (UnaryExpression node)
@@ -1040,6 +1077,7 @@ namespace Mono.Linq.Expressions {
 		void VisitAsBlock (Expression node)
 		{
 			Visit (node.Is (ExpressionType.Block) ? node : Expression.Block (node));
+			WriteLine ();
 		}
 
 		protected override CatchBlock VisitCatchBlock (CatchBlock node)
@@ -1080,7 +1118,7 @@ namespace Mono.Linq.Expressions {
 			WriteToken (")");
 			WriteLine ();
 
-			Visit (node.Body);
+			VisitAsBlock (node.Body);
 
 			return node;
 		}
@@ -1107,6 +1145,8 @@ namespace Mono.Linq.Expressions {
 				}
 			});
 
+			WriteLine ();
+
 			return node;
 		}
 
@@ -1121,6 +1161,16 @@ namespace Mono.Linq.Expressions {
 			}
 
 			VisitAsBlock (node.Body);
+
+			return node;
+		}
+
+		protected override Expression VisitDefault (DefaultExpression node)
+		{
+			WriteKeyword ("default");
+			WriteToken ("(");
+			VisitType (node.Type);
+			WriteToken (")");
 
 			return node;
 		}

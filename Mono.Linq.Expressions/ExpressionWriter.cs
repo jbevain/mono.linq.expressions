@@ -11,6 +11,11 @@ namespace Mono.Linq.Expressions {
 			this.formatter = formatter;
 		}
 
+		public virtual void Write (LambdaExpression expression)
+		{
+			Visit (expression.Body);
+		}
+
 		public virtual void Write (Expression expression)
 		{
 			Visit (expression);

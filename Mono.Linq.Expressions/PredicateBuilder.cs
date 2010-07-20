@@ -63,28 +63,30 @@ namespace Mono.Linq.Expressions {
 
 			return Expression.Lambda<Func<T, bool>> (
 				selector (
-					RewriteFor (self.Body, parameter),
-					RewriteFor (expression.Body, parameter)),
+					RewriteLambdaBody (self, parameter),
+					RewriteLambdaBody (expression, parameter)),
 				parameter);
 		}
 
-		static Expression RewriteFor (Expression expression, ParameterExpression parameter)
+		static Expression RewriteLambdaBody (LambdaExpression expression, ParameterExpression parameter)
 		{
-			return new ParameterRewriter (parameter).Visit (expression);
+			return new ParameterRewriter (expression.Parameters [0], parameter).Visit (expression.Body);
 		}
 
 		class ParameterRewriter : ExpressionVisitor {
 
-			readonly ParameterExpression parameter;
+			readonly ParameterExpression candidate;
+			readonly ParameterExpression replacement;
 
-			public ParameterRewriter (ParameterExpression parameter)
+			public ParameterRewriter (ParameterExpression candidate, ParameterExpression replacement)
 			{
-				this.parameter = parameter;
+				this.candidate = candidate;
+				this.replacement = replacement;
 			}
 
 			protected override Expression VisitParameter (ParameterExpression expression)
 			{
-				return parameter;
+				return ReferenceEquals (expression, candidate) ? replacement : expression;
 			}
 		}
 

@@ -36,6 +36,11 @@ namespace Mono.Linq.Expressions {
 	[TestFixture]
 	public class PredicateBuilderTest : BaseExpressionTest {
 
+		class User {
+			public bool IsFoo { get; set; }
+			public bool IsBar { get; set; }
+		}
+
 		[Test]
 		public void AndAlso ()
 		{
@@ -58,6 +63,22 @@ bool (int)
 bool (int)
 {
 	return true || false;
+}
+", predicate);
+		}
+
+		[Test]
+		public void FooAndBar ()
+		{
+			Expression<Func<User, bool>> is_foo = u => u.IsFoo;
+			Expression<Func<User, bool>> is_bar = u => u.IsBar;
+
+			var predicate = is_foo.AndAlso (is_bar);
+
+			AssertExpression (@"
+bool (User u)
+{
+	return u.IsFoo && u.IsBar;
 }
 ", predicate);
 		}

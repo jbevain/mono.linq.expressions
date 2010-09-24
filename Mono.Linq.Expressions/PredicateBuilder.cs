@@ -55,6 +55,17 @@ namespace Mono.Linq.Expressions {
 			return Combine (self, expression, Expression.AndAlso);
 		}
 
+		public static Expression<Func<T, bool>> Not<T> (this Expression<Func<T, bool>> self)
+		{
+			CheckSelf (self);
+
+			var parameter = CreateParameterFrom (self);
+
+			return Expression.Lambda<Func<T, bool>> (
+				Expression.Not (RewriteLambdaBody (self, parameter)),
+				parameter);
+		}
+
 		static Expression<Func<T, bool>> Combine<T> (Expression<Func<T, bool>> self, Expression<Func<T, bool>> expression, Func<Expression, Expression, Expression> selector)
 		{
 			CheckSelfAndExpression (self, expression);
@@ -95,6 +106,12 @@ namespace Mono.Linq.Expressions {
 			var template = left.Parameters [0];
 
 			return Expression.Parameter (template.Type, template.Name);
+		}
+
+		static void CheckSelf<T> (Expression<Func<T, bool>> self)
+		{
+			if (self == null)
+				throw new ArgumentNullException ("self");
 		}
 
 		static void CheckSelfAndExpression<T> (Expression<Func<T, bool>> self, Expression<Func<T, bool>> expression)

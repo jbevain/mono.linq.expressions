@@ -68,6 +68,19 @@ bool (int)
 		}
 
 		[Test]
+		public void Not ()
+		{
+			var predicate = PredicateBuilder.True<int> ().Not ();
+
+			AssertExpression (@"
+bool (int)
+{
+	return !true;
+}
+", predicate);
+		}
+
+		[Test]
 		public void FooAndBar ()
 		{
 			Expression<Func<User, bool>> is_foo = u => u.IsFoo;

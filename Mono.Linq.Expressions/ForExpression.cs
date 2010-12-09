@@ -12,7 +12,7 @@
 // without limitation the rights to use, copy, modify, merge, publish,
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
+// the following tests:
 //
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
@@ -31,11 +31,11 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public class ForExpression : Expression {
+	public class ForExpression : CustomExpression {
 
 		readonly ParameterExpression variable;
 		readonly Expression initializer;
-		readonly Expression condition;
+		readonly Expression test;
 		readonly Expression step;
 
 		readonly Expression body;
@@ -51,8 +51,8 @@ namespace Mono.Linq.Expressions {
 			get { return initializer; }
 		}
 
-		public new Expression Condition {
-			get { return condition; }
+		public Expression Test {
+			get { return test; }
 		}
 
 		public Expression Step {
@@ -83,23 +83,27 @@ namespace Mono.Linq.Expressions {
 			get { return true; }
 		}
 
-		internal ForExpression (ParameterExpression variable, Expression initializer, Expression condition, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public override CustomExpressionType CustomNodeType {
+			get { return CustomExpressionType.ForExpression; }
+		}
+
+		internal ForExpression (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			this.variable = variable;
 			this.initializer = initializer;
-			this.condition = condition;
+			this.test = test;
 			this.step = step;
 			this.body = body;
 			this.break_target = breakTarget;
 			this.continue_target = continueTarget;
 		}
 
-		public ForExpression Update (ParameterExpression variable, Expression initializer, Expression condition, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public ForExpression Update (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
-			if (this.variable == variable && this.initializer == initializer && this.condition == condition && this.step == step && this.body == body && this.break_target == breakTarget && this.continue_target == continueTarget)
+			if (this.variable == variable && this.initializer == initializer && this.test == test && this.step == step && this.body == body && this.break_target == breakTarget && this.continue_target == continueTarget)
 				return this;
 
-			return Create (variable, initializer, condition, step, body, breakTarget, continueTarget);
+			return Create (variable, initializer, test, step, body, breakTarget, continueTarget);
 		}
 
 		public override Expression Reduce ()
@@ -109,14 +113,14 @@ namespace Mono.Linq.Expressions {
 
 			return Expression.Block (
 				new [] { variable },
-				initializer,
+				Expression.Assign (variable, initializer),
 				Expression.Loop (
 					Expression.Block (
 						body,
 						Expression.Label (continue_target ?? Expression.Label ("for_continue")),
 						step,
 						Expression.Condition (
-							condition,
+							test,
 							Expression.Continue (inner_loop_continue),
 							Expression.Break (inner_loop_break))),
 					inner_loop_break,
@@ -129,43 +133,51 @@ namespace Mono.Linq.Expressions {
 			return Update (
 				(ParameterExpression) visitor.Visit (variable),
 				visitor.Visit (initializer),
-				visitor.Visit (condition),
+				visitor.Visit (test),
 				visitor.Visit (step),
 				visitor.Visit (body),
 				continue_target,
 				break_target);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression condition, Expression step, Expression body)
+		public override Expression Accept (CustomExpressionVisitor visitor)
 		{
-			return Create (variable, initializer, condition, step, body, null);
+			return visitor.VisitForExpression (this);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression condition, Expression step, Expression body, LabelTarget breakTarget)
+		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body)
 		{
-			return Create (variable, initializer, condition, step, body, breakTarget, null);
+			return Create (variable, initializer, test, step, body, null);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression condition, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget)
+		{
+			return Create (variable, initializer, test, step, body, breakTarget, null);
+		}
+
+		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			if (variable == null)
 				throw new ArgumentNullException ("variable");
 			if (initializer == null)
 				throw new ArgumentNullException ("initializer");
-			if (condition == null)
-				throw new ArgumentNullException ("condition");
+			if (test == null)
+				throw new ArgumentNullException ("test");
 			if (step == null)
 				throw new ArgumentNullException ("step");
 			if (body == null)
 				throw new ArgumentNullException ("body");
 
-			if (condition.Type != typeof (bool))
-				throw new ArgumentException ("Condition must be a boolean expression", "condition");
+			if (!variable.Type.IsAssignableFrom (initializer.Type))
+				throw new ArgumentException ("Initializer must be assignable to variable", "initializer");
+
+			if (test.Type != typeof (bool))
+				throw new ArgumentException ("Test must be a boolean expression", "test");
 
 			if (continueTarget != null && continueTarget.Type != typeof (void))
 				throw new ArgumentException ("Continue label target must be void", "continueTarget");
 
-			return new ForExpression (variable, initializer, condition, step, body, breakTarget, continueTarget);
+			return new ForExpression (variable, initializer, test, step, body, breakTarget, continueTarget);
 		}
 	}
 }

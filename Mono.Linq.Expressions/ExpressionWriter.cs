@@ -30,7 +30,7 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public abstract class ExpressionWriter : ExpressionVisitor, IExpressionWriter {
+	public abstract class ExpressionWriter : CustomExpressionVisitor, IExpressionWriter {
 
 		readonly IFormatter formatter;
 

@@ -974,5 +974,57 @@ Expression<Func<string>> (string s)
 }
 ", lambda);
 		}
+
+		[Test]
+		public void For ()
+		{
+			var l = Expression.Parameter (typeof (int), "l");
+
+			var i = Expression.Variable (typeof (int), "i");
+
+			var lambda = Expression.Lambda<Action<int>> (
+				ForExpression.Create (
+					i,
+					Expression.Constant (0),
+					Expression.LessThan (i, l),
+					Expression.PreIncrementAssign (i),
+					Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (int) }), i)),
+				l);
+
+			AssertExpression (@"
+void (int l)
+{
+	for (int i = 0; i < l; ++i)
+	{
+		Console.WriteLine(i);
+	}
+}
+", lambda);
+		}
+
+		[Test]
+		public void ForEach ()
+		{
+			var args = Expression.Parameter (typeof (string []), "args");
+
+			var s = Expression.Variable (typeof (string), "s");
+
+			var lambda = Expression.Lambda<Action<string []>> (
+				ForEachExpression.Create (
+					s,
+					args,
+					Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (string) }), s)),
+				args);
+
+			AssertExpression (@"
+void (string[] args)
+{
+	foreach (string s in args)
+	{
+		Console.WriteLine(s);
+	}
+}
+", lambda);
+		}
 	}
 }

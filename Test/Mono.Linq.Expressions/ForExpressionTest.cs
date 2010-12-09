@@ -63,7 +63,7 @@ namespace Mono.Linq.Expressions {
 			var hitcounter = Expression.Lambda<Action<Counter, int>> (
 				ForExpression.Create (
 					i,
-					Expression.Assign (i, Expression.Constant (0)),
+					Expression.Constant (0),
 					Expression.LessThan (i, l),
 					Expression.PreIncrementAssign (i),
 					Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes))),
@@ -88,7 +88,7 @@ namespace Mono.Linq.Expressions {
 			var hitcounter = Expression.Lambda<Action<Counter, int>> (
 				ForExpression.Create (
 					i,
-					Expression.Assign (i, Expression.Constant (0)),
+					Expression.Constant (0),
 					Expression.LessThan (i, l),
 					Expression.PreIncrementAssign (i),
 					Expression.Block (
@@ -119,7 +119,7 @@ namespace Mono.Linq.Expressions {
 			var hitcounter = Expression.Lambda<Action<Counter, int>> (
 				ForExpression.Create (
 					i,
-					Expression.Assign (i, Expression.Constant (0)),
+					Expression.Constant (0),
 					Expression.LessThan (i, l),
 					Expression.PreIncrementAssign (i),
 					Expression.Block (

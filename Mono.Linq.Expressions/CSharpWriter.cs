@@ -102,6 +102,21 @@ namespace Mono.Linq.Expressions {
 			case ExpressionType.Switch:
 				return true;
 			default:
+				var custom = expression as CustomExpression;
+				if (custom != null)
+					return IsStatement (custom);
+
+				return false;
+			}
+		}
+
+		static bool IsStatement (CustomExpression expression)
+		{
+			switch (expression.CustomNodeType) {
+			case CustomExpressionType.ForExpression:
+			case CustomExpressionType.ForEachExpression:
+				return true;
+			default:
 				return false;
 			}
 		}
@@ -1199,6 +1214,52 @@ namespace Mono.Linq.Expressions {
 			WriteToken ("(");
 			VisitType (node.Type);
 			WriteToken (")");
+
+			return node;
+		}
+
+		protected internal override Expression VisitForExpression (ForExpression node)
+		{
+			WriteKeyword ("for");
+			WriteSpace ();
+			WriteToken ("(");
+			VisitType (node.Variable.Type);
+			WriteSpace ();
+			Visit (node.Variable);
+			WriteSpace ();
+			WriteToken ("=");
+			WriteSpace ();
+			Visit (node.Initializer);
+			WriteToken (";");
+			WriteSpace ();
+			Visit (node.Test);
+			WriteToken (";");
+			WriteSpace ();
+			Visit (node.Step);
+			WriteToken (")");
+			WriteLine ();
+
+			VisitAsBlock (node.Body);
+
+			return node;
+		}
+
+		protected internal override Expression VisitForEachExpression (ForEachExpression node)
+		{
+			WriteKeyword ("foreach");
+			WriteSpace ();
+			WriteToken ("(");
+			VisitType (node.Variable.Type);
+			WriteSpace ();
+			Visit (node.Variable);
+			WriteSpace ();
+			WriteKeyword ("in");
+			WriteSpace ();
+			Visit (node.Enumerable);
+			WriteToken (")");
+			WriteLine ();
+
+			VisitAsBlock (node.Body);
 
 			return node;
 		}

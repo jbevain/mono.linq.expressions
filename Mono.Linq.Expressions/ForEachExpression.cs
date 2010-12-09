@@ -33,7 +33,7 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public class ForEachExpression : Expression {
+	public class ForEachExpression : CustomExpression {
 
 		readonly ParameterExpression variable;
 		readonly Expression enumerable;
@@ -72,6 +72,10 @@ namespace Mono.Linq.Expressions {
 
 		public override Type Type {
 			get { return body.Type; }
+		}
+
+		public override CustomExpressionType CustomNodeType {
+			get { return CustomExpressionType.ForEachExpression; }
 		}
 
 		internal ForEachExpression (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget break_target, LabelTarget continue_target)
@@ -186,6 +190,11 @@ namespace Mono.Linq.Expressions {
 				visitor.Visit (body),
 				break_target,
 				continue_target);
+		}
+
+		public override Expression Accept (CustomExpressionVisitor visitor)
+		{
+			return visitor.VisitForEachExpression (this);
 		}
 
 		public static ForEachExpression Create (ParameterExpression variable, Expression enumerable, Expression body)

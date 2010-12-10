@@ -33,6 +33,7 @@ namespace Mono.Linq.Expressions {
 	public enum CustomExpressionType {
 		ForEachExpression,
 		ForExpression,
+		WhileExpression,
 	}
 
 	public abstract class CustomExpression : Expression {

@@ -1026,5 +1026,29 @@ void (string[] args)
 }
 ", lambda);
 		}
+
+		[Test]
+		public void While ()
+		{
+			var i = Expression.Parameter (typeof (int), "i");
+			var l = Expression.Parameter (typeof (int), "l");
+
+			var lambda = Expression.Lambda<Action<int, int>> (
+				WhileExpression.Create (
+					Expression.LessThan (i, l),
+					Expression.Block (
+						Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (int) }), Expression.PostIncrementAssign (i)))),
+				i, l);
+
+			AssertExpression (@"
+void (int i, int l)
+{
+	while (i < l)
+	{
+		Console.WriteLine(i++);
+	}
+}
+", lambda);
+		}
 	}
 }

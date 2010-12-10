@@ -70,5 +70,14 @@ namespace Mono.Linq.Expressions {
 				node.BreakTarget,
 				node.ContinueTarget);
 		}
+
+		protected internal virtual Expression VisitWhileExpression (WhileExpression node)
+		{
+			return node.Update (
+				Visit (node.Test),
+				Visit (node.Body),
+				node.BreakTarget,
+				node.ContinueTarget);
+		}
 	}
 }

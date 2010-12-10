@@ -1,5 +1,5 @@
 //
-// ForExpression.cs
+// WhileExpression.cs
 //
 // Author:
 //   Jb Evain (jbevain@novell.com)
@@ -31,32 +31,16 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public class ForExpression : CustomExpression {
+	public class WhileExpression : CustomExpression {
 
-		readonly ParameterExpression variable;
-		readonly Expression initializer;
 		readonly Expression test;
-		readonly Expression step;
-
 		readonly Expression body;
 
 		readonly LabelTarget break_target;
 		readonly LabelTarget continue_target;
 
-		public new ParameterExpression Variable {
-			get { return variable; }
-		}
-
-		public Expression Initializer {
-			get { return initializer; }
-		}
-
 		public Expression Test {
 			get { return test; }
-		}
-
-		public Expression Step {
-			get { return step; }
 		}
 
 		public Expression Body {
@@ -89,26 +73,23 @@ namespace Mono.Linq.Expressions {
 		}
 
 		public override CustomExpressionType CustomNodeType {
-			get { return CustomExpressionType.ForExpression; }
+			get { return CustomExpressionType.WhileExpression; }
 		}
 
-		internal ForExpression (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		internal WhileExpression (Expression test,  Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
-			this.variable = variable;
-			this.initializer = initializer;
 			this.test = test;
-			this.step = step;
 			this.body = body;
 			this.break_target = breakTarget;
 			this.continue_target = continueTarget;
 		}
 
-		public ForExpression Update (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public WhileExpression Update (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
-			if (this.variable == variable && this.initializer == initializer && this.test == test && this.step == step && this.body == body && this.break_target == breakTarget && this.continue_target == continueTarget)
+			if (this.test == test && this.body == body && this.break_target == breakTarget && this.continue_target == continueTarget)
 				return this;
 
-			return Create (variable, initializer, test, step, body, breakTarget, continueTarget);
+			return Create (test, body, breakTarget, continueTarget);
 		}
 
 		public override Expression Reduce ()
@@ -120,17 +101,15 @@ namespace Mono.Linq.Expressions {
 			var @break = break_target ?? Expression.Label ("break");
 
 			return Expression.Block (
-				new [] { variable },
-				Expression.Assign (variable, initializer),
 				Expression.Loop (
 					Expression.Block (
-						body,
 						Expression.Label (@continue),
-						step,
 						Expression.Condition (
 							test,
-							Expression.Continue (inner_loop_continue),
-							Expression.Break (inner_loop_break))),
+							Expression.Block (
+								body,
+								Expression.Goto (inner_loop_continue)),
+							Expression.Goto (inner_loop_break))),
 					inner_loop_break,
 					inner_loop_continue),
 				Expression.Label (@break));
@@ -139,10 +118,7 @@ namespace Mono.Linq.Expressions {
 		protected override Expression VisitChildren (ExpressionVisitor visitor)
 		{
 			return Update (
-				(ParameterExpression) visitor.Visit (variable),
-				visitor.Visit (initializer),
 				visitor.Visit (test),
-				visitor.Visit (step),
 				visitor.Visit (body),
 				continue_target,
 				break_target);
@@ -150,34 +126,25 @@ namespace Mono.Linq.Expressions {
 
 		public override Expression Accept (CustomExpressionVisitor visitor)
 		{
-			return visitor.VisitForExpression (this);
+			return visitor.VisitWhileExpression (this);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body)
+		public static WhileExpression Create (Expression test, Expression body)
 		{
-			return Create (variable, initializer, test, step, body, null);
+			return Create (test, body, null);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget)
+		public static WhileExpression Create (Expression test, Expression body, LabelTarget breakTarget)
 		{
-			return Create (variable, initializer, test, step, body, breakTarget, null);
+			return Create (test, body, breakTarget, null);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public static WhileExpression Create (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
-			if (variable == null)
-				throw new ArgumentNullException ("variable");
-			if (initializer == null)
-				throw new ArgumentNullException ("initializer");
 			if (test == null)
 				throw new ArgumentNullException ("test");
-			if (step == null)
-				throw new ArgumentNullException ("step");
 			if (body == null)
 				throw new ArgumentNullException ("body");
-
-			if (!variable.Type.IsAssignableFrom (initializer.Type))
-				throw new ArgumentException ("Initializer must be assignable to variable", "initializer");
 
 			if (test.Type != typeof (bool))
 				throw new ArgumentException ("Test must be a boolean expression", "test");
@@ -185,7 +152,7 @@ namespace Mono.Linq.Expressions {
 			if (continueTarget != null && continueTarget.Type != typeof (void))
 				throw new ArgumentException ("Continue label target must be void", "continueTarget");
 
-			return new ForExpression (variable, initializer, test, step, body, breakTarget, continueTarget);
+			return new WhileExpression (test, body, breakTarget, continueTarget);
 		}
 	}
 }

@@ -71,7 +71,12 @@ namespace Mono.Linq.Expressions {
 		}
 
 		public override Type Type {
-			get { return body.Type; }
+			get {
+				if (break_target != null)
+					return break_target.Type;
+
+				return typeof (void);
+			}
 		}
 
 		public override CustomExpressionType CustomNodeType {
@@ -118,7 +123,7 @@ namespace Mono.Linq.Expressions {
 			var end_finally = Expression.Label ("end");
 
 			return Expression.Block (
-				new[] {enumerator},
+				new [] { enumerator },
 				Expression.Assign (
 					enumerator,
 					Expression.Call (

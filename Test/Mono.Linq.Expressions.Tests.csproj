@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Mono.Linq.Expressions\BaseExpressionTest.cs" />
+    <Compile Include="Mono.Linq.Expressions\UsingExpressionTest.cs" />
     <Compile Include="Mono.Linq.Expressions\WhileExpressionTest.cs" />
     <Compile Include="Mono.Linq.Expressions\ForEachExpressionTest.cs" />
     <Compile Include="Mono.Linq.Expressions\ForExpressionTest.cs" />

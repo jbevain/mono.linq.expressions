@@ -115,6 +115,7 @@ namespace Mono.Linq.Expressions {
 			switch (expression.CustomNodeType) {
 			case CustomExpressionType.ForExpression:
 			case CustomExpressionType.ForEachExpression:
+			case CustomExpressionType.UsingExpression:
 			case CustomExpressionType.WhileExpression:
 				return true;
 			default:
@@ -1257,6 +1258,20 @@ namespace Mono.Linq.Expressions {
 			WriteKeyword ("in");
 			WriteSpace ();
 			Visit (node.Enumerable);
+			WriteToken (")");
+			WriteLine ();
+
+			VisitAsBlock (node.Body);
+
+			return node;
+		}
+
+		protected internal override Expression VisitUsingExpression (UsingExpression node)
+		{
+			WriteKeyword ("using");
+			WriteSpace ();
+			WriteToken ("(");
+			Visit (node.Disposable);
 			WriteToken (")");
 			WriteLine ();
 

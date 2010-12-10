@@ -33,6 +33,7 @@ namespace Mono.Linq.Expressions {
 	public enum CustomExpressionType {
 		ForEachExpression,
 		ForExpression,
+		UsingExpression,
 		WhileExpression,
 	}
 
@@ -70,6 +71,26 @@ namespace Mono.Linq.Expressions {
 		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			return ForEachExpression.Create (variable, enumerable, body, breakTarget, continueTarget);
+		}
+
+		public static UsingExpression Using (Expression disposable, Expression body)
+		{
+			return UsingExpression.Create (disposable, body);
+		}
+
+		public static WhileExpression While (Expression test, Expression body)
+		{
+			return WhileExpression.Create (test, body, null);
+		}
+
+		public static WhileExpression While (Expression test, Expression body, LabelTarget breakTarget)
+		{
+			return WhileExpression.Create (test, body, breakTarget, null);
+		}
+
+		public static WhileExpression While (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		{
+			return WhileExpression.Create (test, body, breakTarget, continueTarget);
 		}
 	}
 }

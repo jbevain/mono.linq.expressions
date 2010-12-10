@@ -1028,6 +1028,28 @@ void (string[] args)
 		}
 
 		[Test]
+		public void Using ()
+		{
+			var arg = Expression.Parameter (typeof (IDisposable), "arg");
+
+			var lambda = Expression.Lambda<Action<IDisposable>> (
+				UsingExpression.Create (
+					arg,
+					Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (object) }), arg)),
+				arg);
+
+			AssertExpression (@"
+void (IDisposable arg)
+{
+	using (arg)
+	{
+		Console.WriteLine(arg);
+	}
+}
+", lambda);
+		}
+
+		[Test]
 		public void While ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");

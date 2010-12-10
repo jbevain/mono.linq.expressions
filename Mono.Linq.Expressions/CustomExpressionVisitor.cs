@@ -1,5 +1,5 @@
 //
-// CustomExpression.cs
+// CustomExpressionVisitor.cs
 //
 // Author:
 //   Jb Evain (jbevain@novell.com)
@@ -69,6 +69,13 @@ namespace Mono.Linq.Expressions {
 				Visit (node.Body),
 				node.BreakTarget,
 				node.ContinueTarget);
+		}
+
+		protected internal virtual Expression VisitUsingExpression (UsingExpression node)
+		{
+			return node.Update (
+				Visit (node.Disposable),
+				Visit (node.Body));
 		}
 
 		protected internal virtual Expression VisitWhileExpression (WhileExpression node)

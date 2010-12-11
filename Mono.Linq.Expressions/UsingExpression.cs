@@ -44,14 +44,6 @@ namespace Mono.Linq.Expressions {
 			get { return body; }
 		}
 
-		public override ExpressionType NodeType {
-			get { return ExpressionType.Extension; }
-		}
-
-		public override bool CanReduce {
-			get { return true; }
-		}
-
 		public override Type Type {
 			get { return body.Type; }
 		}

@@ -55,10 +55,6 @@ namespace Mono.Linq.Expressions {
 			get { return continue_target; }
 		}
 
-		public override ExpressionType NodeType {
-			get { return ExpressionType.Extension; }
-		}
-
 		public override Type Type {
 			get {
 				if (break_target != null)
@@ -66,10 +62,6 @@ namespace Mono.Linq.Expressions {
 
 				return typeof (void);
 			}
-		}
-
-		public override bool CanReduce {
-			get { return true; }
 		}
 
 		public override CustomExpressionType CustomNodeType {

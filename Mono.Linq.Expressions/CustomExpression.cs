@@ -41,6 +41,14 @@ namespace Mono.Linq.Expressions {
 
 		public abstract CustomExpressionType CustomNodeType { get; }
 
+		public override ExpressionType NodeType {
+			get { return ExpressionType.Extension; }
+		}
+
+		public override bool CanReduce {
+			get { return true; }
+		}
+
 		public abstract Expression Accept (CustomExpressionVisitor visitor);
 
 		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body)

@@ -100,7 +100,7 @@ namespace Mono.Linq.Expressions {
 			if (this.variable == variable && this.initializer == initializer && this.test == test && this.step == step && this.body == body && this.break_target == breakTarget && this.continue_target == continueTarget)
 				return this;
 
-			return Create (variable, initializer, test, step, body, breakTarget, continueTarget);
+			return CustomExpression.For (variable, initializer, test, step, body, breakTarget, continueTarget);
 		}
 
 		public override Expression Reduce ()
@@ -144,18 +144,21 @@ namespace Mono.Linq.Expressions {
 		{
 			return visitor.VisitForExpression (this);
 		}
+	}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body)
+	public abstract partial class CustomExpression {
+
+		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body)
 		{
-			return Create (variable, initializer, test, step, body, null);
+			return For (variable, initializer, test, step, body, null);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget)
+		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget)
 		{
-			return Create (variable, initializer, test, step, body, breakTarget, null);
+			return For (variable, initializer, test, step, body, breakTarget, null);
 		}
 
-		public static ForExpression Create (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			if (variable == null)
 				throw new ArgumentNullException ("variable");

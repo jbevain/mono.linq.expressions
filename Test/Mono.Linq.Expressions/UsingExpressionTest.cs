@@ -68,7 +68,7 @@ namespace Mono.Linq.Expressions {
 			var d = Expression.Parameter (typeof (Disposable), "d");
 
 			var disposer = Expression.Lambda<Action<Disposable>> (
-				UsingExpression.Create (
+				CustomExpression.Using (
 					d,
 					Expression.Block (
 						Expression.Call (d, typeof (Disposable).GetMethod ("Touch")))),
@@ -94,7 +94,7 @@ namespace Mono.Linq.Expressions {
 			var d = Expression.Parameter (typeof (Disposable), "d");
 
 			var disposer = Expression.Lambda<Action<Disposable>> (
-				UsingExpression.Create (
+				CustomExpression.Using (
 					d,
 					Expression.Block (
 						Expression.Throw (Expression.New (typeof (TestUsingException))),

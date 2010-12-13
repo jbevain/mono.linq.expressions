@@ -113,6 +113,7 @@ namespace Mono.Linq.Expressions {
 		static bool IsStatement (CustomExpression expression)
 		{
 			switch (expression.CustomNodeType) {
+			case CustomExpressionType.DoWhileExpression:
 			case CustomExpressionType.ForExpression:
 			case CustomExpressionType.ForEachExpression:
 			case CustomExpressionType.UsingExpression:
@@ -1276,6 +1277,24 @@ namespace Mono.Linq.Expressions {
 			WriteLine ();
 
 			VisitAsBlock (node.Body);
+
+			return node;
+		}
+
+		protected internal override Expression VisitDoWhileExpression (DoWhileExpression node)
+		{
+			WriteKeyword ("do");
+			WriteLine ();
+
+			VisitAsBlock (node.Body);
+
+			WriteKeyword ("while");
+			WriteSpace ();
+			WriteToken ("(");
+			Visit (node.Test);
+			WriteToken (")");
+			WriteToken (";");
+			WriteLine ();
 
 			return node;
 		}

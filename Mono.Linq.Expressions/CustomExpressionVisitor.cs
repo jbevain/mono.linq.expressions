@@ -49,6 +49,15 @@ namespace Mono.Linq.Expressions {
 			return node.Accept (this);
 		}
 
+		protected internal virtual Expression VisitDoWhileExpression (DoWhileExpression node)
+		{
+			return node.Update (
+				Visit (node.Test),
+				Visit (node.Body),
+				node.BreakTarget,
+				node.ContinueTarget);
+		}
+
 		protected internal virtual Expression VisitForExpression (ForExpression node)
 		{
 			return node.Update (

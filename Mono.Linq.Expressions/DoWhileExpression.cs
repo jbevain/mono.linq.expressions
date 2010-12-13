@@ -1,5 +1,5 @@
 //
-// WhileExpression.cs
+// DoWhileExpression.cs
 //
 // Author:
 //   Jb Evain (jbevain@novell.com)
@@ -31,7 +31,7 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public class WhileExpression : CustomExpression {
+	public class DoWhileExpression : CustomExpression {
 
 		readonly Expression test;
 		readonly Expression body;
@@ -65,10 +65,10 @@ namespace Mono.Linq.Expressions {
 		}
 
 		public override CustomExpressionType CustomNodeType {
-			get { return CustomExpressionType.WhileExpression; }
+			get { return CustomExpressionType.DoWhileExpression; }
 		}
 
-		internal WhileExpression (Expression test,  Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		internal DoWhileExpression (Expression test,  Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			this.test = test;
 			this.body = body;
@@ -76,12 +76,12 @@ namespace Mono.Linq.Expressions {
 			this.continue_target = continueTarget;
 		}
 
-		public WhileExpression Update (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public DoWhileExpression Update (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			if (this.test == test && this.body == body && this.break_target == breakTarget && this.continue_target == continueTarget)
 				return this;
 
-			return CustomExpression.While (test, body, breakTarget, continueTarget);
+			return CustomExpression.DoWhile (test, body, breakTarget, continueTarget);
 		}
 
 		public override Expression Reduce ()
@@ -96,11 +96,10 @@ namespace Mono.Linq.Expressions {
 				Expression.Loop (
 					Expression.Block (
 						Expression.Label (@continue),
+						body,
 						Expression.Condition (
 							test,
-							Expression.Block (
-								body,
-								Expression.Goto (inner_loop_continue)),
+							Expression.Goto (inner_loop_continue),
 							Expression.Goto (inner_loop_break))),
 					inner_loop_break,
 					inner_loop_continue),
@@ -118,23 +117,23 @@ namespace Mono.Linq.Expressions {
 
 		public override Expression Accept (CustomExpressionVisitor visitor)
 		{
-			return visitor.VisitWhileExpression (this);
+			return visitor.VisitDoWhileExpression (this);
 		}
 	}
 
 	public abstract partial class CustomExpression {
 
-		public static WhileExpression While (Expression test, Expression body)
+		public static DoWhileExpression DoWhile (Expression test, Expression body)
 		{
-			return While (test, body, null);
+			return DoWhile (test, body, null);
 		}
 
-		public static WhileExpression While (Expression test, Expression body, LabelTarget breakTarget)
+		public static DoWhileExpression DoWhile (Expression test, Expression body, LabelTarget breakTarget)
 		{
-			return While (test, body, breakTarget, null);
+			return DoWhile (test, body, breakTarget, null);
 		}
 
-		public static WhileExpression While (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public static DoWhileExpression DoWhile (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			if (test == null)
 				throw new ArgumentNullException ("test");
@@ -147,7 +146,7 @@ namespace Mono.Linq.Expressions {
 			if (continueTarget != null && continueTarget.Type != typeof (void))
 				throw new ArgumentException ("Continue label target must be void", "continueTarget");
 
-			return new WhileExpression (test, body, breakTarget, continueTarget);
+			return new DoWhileExpression (test, body, breakTarget, continueTarget);
 		}
 	}
 }

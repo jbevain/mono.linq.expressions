@@ -119,7 +119,7 @@ namespace Mono.Linq.Expressions {
 			var item = Expression.Variable (typeof (int), "i");
 
 			var hitcounter = Expression.Lambda<Action<EnumerableCounter>> (
-				ForEachExpression.Create (
+				CustomExpression.ForEach (
 					item,
 					ec,
 					Expression.Call (ec, typeof (EnumerableCounter).GetMethod ("Hit", Type.EmptyTypes))),
@@ -142,7 +142,7 @@ namespace Mono.Linq.Expressions {
 			var foreach_break = Expression.Label ("foreach_break");
 
 			var hitcounter = Expression.Lambda<Action<EnumerableCounter>> (
-				ForEachExpression.Create (
+				CustomExpression.ForEach (
 					item,
 					ec,
 					Expression.Block (
@@ -171,7 +171,7 @@ namespace Mono.Linq.Expressions {
 			var foreach_continue = Expression.Label ("foreach_continue");
 
 			var hitcounter = Expression.Lambda<Action<EnumerableCounter>> (
-				ForEachExpression.Create (
+				CustomExpression.ForEach (
 					item,
 					ec,
 					Expression.Block (
@@ -202,7 +202,7 @@ namespace Mono.Linq.Expressions {
 			var item = Expression.Variable (typeof (int), "i");
 
 			var hitcounter = Expression.Lambda<Action<EnumerableCounter>> (
-				ForEachExpression.Create (
+				CustomExpression.ForEach (
 					item,
 					ec,
 					Expression.Block (
@@ -283,7 +283,7 @@ namespace Mono.Linq.Expressions {
 			var item = Expression.Variable (typeof (int), "i");
 
 			var hitcounter = Expression.Lambda<Action<NonGenericEnumerableCounter>> (
-				ForEachExpression.Create (
+				CustomExpression.ForEach (
 					item,
 					ec,
 					Expression.Call (ec, typeof (NonGenericEnumerableCounter).GetMethod ("Hit", Type.EmptyTypes))),

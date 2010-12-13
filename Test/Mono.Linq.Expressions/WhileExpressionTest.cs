@@ -60,7 +60,7 @@ namespace Mono.Linq.Expressions {
 			var l = Expression.Parameter (typeof (int), "l");
 
 			var hitcounter = Expression.Lambda<Action<Counter, int, int>> (
-				WhileExpression.Create (
+				CustomExpression.While (
 					Expression.LessThan (i, l),
 					Expression.Block (
 						Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
@@ -74,6 +74,29 @@ namespace Mono.Linq.Expressions {
 		}
 
 		[Test]
+		public void WhileFalse ()
+		{
+			var counter = new Counter ();
+
+			var c = Expression.Parameter (typeof (Counter), "c");
+			var i = Expression.Parameter (typeof (int), "i");
+			var l = Expression.Parameter (typeof (int), "l");
+
+			var hitcounter = Expression.Lambda<Action<Counter, int, int>> (
+				CustomExpression.While (
+					Expression.LessThan (i, l),
+					Expression.Block (
+						Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
+						Expression.PreIncrementAssign (i))
+					),
+				c, i, l).Compile ();
+
+			hitcounter (counter, 100, 10);
+
+			Assert.AreEqual (0, counter.Count);
+		}
+
+		[Test]
 		public void WhileBreakContinue ()
 		{
 			var counter = new Counter ();
@@ -82,11 +105,11 @@ namespace Mono.Linq.Expressions {
 			var i = Expression.Parameter (typeof (int), "i");
 			var l = Expression.Parameter (typeof (int), "l");
 
-			var for_break = Expression.Label ("for_break");
-			var for_continue = Expression.Label ("for_continue");
+			var loop_break = Expression.Label ("for_break");
+			var loop_continue = Expression.Label ("for_continue");
 
 			var hitcounter = Expression.Lambda<Action<Counter, int, int>> (
-				WhileExpression.Create (
+				CustomExpression.While (
 					Expression.LessThan (i, l),
 					Expression.Block (
 						Expression.Condition (
@@ -94,10 +117,10 @@ namespace Mono.Linq.Expressions {
 							Expression.Block (
 								Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
 								Expression.PostIncrementAssign (i),
-								Expression.Goto (for_continue)),
-							Expression.Goto (for_break))),
-					for_break,
-					for_continue),
+								Expression.Goto (loop_continue)),
+							Expression.Goto (loop_break))),
+					loop_break,
+					loop_continue),
 				c, i, l).Compile ();
 
 			hitcounter (counter, 0, 100);

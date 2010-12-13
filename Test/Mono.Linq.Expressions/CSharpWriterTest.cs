@@ -983,7 +983,7 @@ Expression<Func<string>> (string s)
 			var i = Expression.Variable (typeof (int), "i");
 
 			var lambda = Expression.Lambda<Action<int>> (
-				ForExpression.Create (
+				CustomExpression.For (
 					i,
 					Expression.Constant (0),
 					Expression.LessThan (i, l),
@@ -1010,7 +1010,7 @@ void (int l)
 			var s = Expression.Variable (typeof (string), "s");
 
 			var lambda = Expression.Lambda<Action<string []>> (
-				ForEachExpression.Create (
+				CustomExpression.ForEach (
 					s,
 					args,
 					Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (string) }), s)),
@@ -1033,7 +1033,7 @@ void (string[] args)
 			var arg = Expression.Parameter (typeof (IDisposable), "arg");
 
 			var lambda = Expression.Lambda<Action<IDisposable>> (
-				UsingExpression.Create (
+				CustomExpression.Using (
 					arg,
 					Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (object) }), arg)),
 				arg);
@@ -1050,13 +1050,38 @@ void (IDisposable arg)
 		}
 
 		[Test]
+		public void DoWhile ()
+		{
+			var i = Expression.Parameter (typeof (int), "i");
+			var l = Expression.Parameter (typeof (int), "l");
+
+			var lambda = Expression.Lambda<Action<int, int>> (
+				CustomExpression.DoWhile (
+					Expression.LessThan (i, l),
+					Expression.Block (
+						Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (int) }), Expression.PostIncrementAssign (i)))),
+				i, l);
+
+			AssertExpression (@"
+void (int i, int l)
+{
+	do
+	{
+		Console.WriteLine(i++);
+	}
+	while (i < l);
+}
+", lambda);
+		}
+
+		[Test]
 		public void While ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
 			var l = Expression.Parameter (typeof (int), "l");
 
 			var lambda = Expression.Lambda<Action<int, int>> (
-				WhileExpression.Create (
+				CustomExpression.While (
 					Expression.LessThan (i, l),
 					Expression.Block (
 						Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { typeof (int) }), Expression.PostIncrementAssign (i)))),

@@ -31,13 +31,14 @@ using System.Linq.Expressions;
 namespace Mono.Linq.Expressions {
 
 	public enum CustomExpressionType {
+		DoWhileExpression,
 		ForEachExpression,
 		ForExpression,
 		UsingExpression,
 		WhileExpression,
 	}
 
-	public abstract class CustomExpression : Expression {
+	public abstract partial class CustomExpression : Expression {
 
 		public abstract CustomExpressionType CustomNodeType { get; }
 
@@ -50,55 +51,5 @@ namespace Mono.Linq.Expressions {
 		}
 
 		public abstract Expression Accept (CustomExpressionVisitor visitor);
-
-		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body)
-		{
-			return ForExpression.Create (variable, initializer, test, step, body, null);
-		}
-
-		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget)
-		{
-			return ForExpression.Create (variable, initializer, test, step, body, breakTarget, null);
-		}
-
-		public static ForExpression For (ParameterExpression variable, Expression initializer, Expression test, Expression step, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
-		{
-			return ForExpression.Create (variable, initializer, test, step, body, breakTarget, continueTarget);
-		}
-
-		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body)
-		{
-			return ForEachExpression.Create (variable, enumerable, body, null);
-		}
-
-		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget)
-		{
-			return ForEachExpression.Create (variable, enumerable, body, breakTarget, null);
-		}
-
-		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
-		{
-			return ForEachExpression.Create (variable, enumerable, body, breakTarget, continueTarget);
-		}
-
-		public static UsingExpression Using (Expression disposable, Expression body)
-		{
-			return UsingExpression.Create (disposable, body);
-		}
-
-		public static WhileExpression While (Expression test, Expression body)
-		{
-			return WhileExpression.Create (test, body, null);
-		}
-
-		public static WhileExpression While (Expression test, Expression body, LabelTarget breakTarget)
-		{
-			return WhileExpression.Create (test, body, breakTarget, null);
-		}
-
-		public static WhileExpression While (Expression test, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
-		{
-			return WhileExpression.Create (test, body, breakTarget, continueTarget);
-		}
 	}
 }

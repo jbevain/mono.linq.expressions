@@ -63,7 +63,7 @@ namespace Mono.Linq.Expressions {
 			if (this.disposable == disposable && this.body == body)
 				return this;
 
-			return Create (disposable, body);
+			return CustomExpression.Using (disposable, body);
 		}
 
 		public override Expression Reduce ()
@@ -100,8 +100,11 @@ namespace Mono.Linq.Expressions {
 		{
 			return visitor.VisitUsingExpression (this);
 		}
+	}
 
-		public static UsingExpression Create (Expression disposable, Expression body)
+	public abstract partial class CustomExpression {
+
+		public static UsingExpression Using (Expression disposable, Expression body)
 		{
 			if (disposable == null)
 				throw new ArgumentNullException ("disposable");

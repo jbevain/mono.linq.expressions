@@ -89,7 +89,7 @@ namespace Mono.Linq.Expressions {
 			if (this.variable == variable && this.enumerable == enumerable && this.body == body && break_target == breakTarget && continue_target == continueTarget)
 				return this;
 
-			return Create (variable, enumerable, body, continueTarget, breakTarget);
+			return CustomExpression.ForEach (variable, enumerable, body, continueTarget, breakTarget);
 		}
 
 		public override Expression Reduce ()
@@ -120,7 +120,7 @@ namespace Mono.Linq.Expressions {
 					enumerator,
 					Expression.Call (
 						Expression.Convert (enumerable, enumerable_type),
-						enumerable_type.GetMethod ("GetEnumerator", Type.EmptyTypes))),
+						enumerable_type.GetMethod ("GetEnumerator"))),
 				Expression.TryFinally (
 					Expression.Block (
 						new[] { variable },
@@ -139,7 +139,7 @@ namespace Mono.Linq.Expressions {
 									Expression.Condition (
 										Expression.Call (
 											enumerator,
-											typeof (IEnumerator).GetMethod ("MoveNext", Type.EmptyTypes)),
+											typeof (IEnumerator).GetMethod ("MoveNext")),
 										Expression.Goto (inner_loop_continue),
 										Expression.Goto (inner_loop_break))),
 							inner_loop_break,
@@ -193,18 +193,21 @@ namespace Mono.Linq.Expressions {
 		{
 			return visitor.VisitForEachExpression (this);
 		}
+	}
 
-		public static ForEachExpression Create (ParameterExpression variable, Expression enumerable, Expression body)
+	public abstract partial class CustomExpression {
+
+		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body)
 		{
-			return Create (variable, enumerable, body, null);
+			return ForEach (variable, enumerable, body, null);
 		}
 
-		public static ForEachExpression Create (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget)
+		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget)
 		{
-			return Create (variable, enumerable, body, breakTarget, null);
+			return ForEach (variable, enumerable, body, breakTarget, null);
 		}
 
-		public static ForEachExpression Create (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
+		public static ForEachExpression ForEach (ParameterExpression variable, Expression enumerable, Expression body, LabelTarget breakTarget, LabelTarget continueTarget)
 		{
 			if (variable == null)
 				throw new ArgumentNullException ("variable");

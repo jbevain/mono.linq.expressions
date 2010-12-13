@@ -1,5 +1,5 @@
 //
-// ForExpressionTest.cs
+// DoWhileExpressionTest.cs
 //
 // Author:
 //   Jb Evain (jbevain@novell.com)
@@ -34,7 +34,7 @@ using NUnit.Framework;
 namespace Mono.Linq.Expressions {
 
 	[TestFixture]
-	public class ForExpressionTest : BaseExpressionTest {
+	public class DoWhileExpressionTest : BaseExpressionTest {
 
 		public class Counter {
 
@@ -51,89 +51,81 @@ namespace Mono.Linq.Expressions {
 		}
 
 		[Test]
-		public void For ()
+		public void DoWhile ()
 		{
 			var counter = new Counter ();
 
 			var c = Expression.Parameter (typeof (Counter), "c");
+			var i = Expression.Parameter (typeof (int), "i");
 			var l = Expression.Parameter (typeof (int), "l");
 
-			var i = Expression.Variable (typeof (int), "i");
-
-			var hitcounter = Expression.Lambda<Action<Counter, int>> (
-				CustomExpression.For (
-					i,
-					Expression.Constant (0),
+			var hitcounter = Expression.Lambda<Action<Counter, int, int>> (
+				CustomExpression.DoWhile (
 					Expression.LessThan (i, l),
-					Expression.PreIncrementAssign (i),
-					Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes))),
-				c, l).Compile ();
+					Expression.Block (
+						Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
+						Expression.PreIncrementAssign (i))
+					),
+				c, i, l).Compile ();
 
-			hitcounter (counter, 10);
+			hitcounter (counter, 0, 10);
 
 			Assert.AreEqual (10, counter.Count);
 		}
 
 		[Test]
-		public void ForBreak ()
+		public void DoWhileFalse ()
 		{
 			var counter = new Counter ();
 
 			var c = Expression.Parameter (typeof (Counter), "c");
+			var i = Expression.Parameter (typeof (int), "i");
 			var l = Expression.Parameter (typeof (int), "l");
 
-			var i = Expression.Variable (typeof (int), "i");
-			var for_break = Expression.Label ("for_break");
-
-			var hitcounter = Expression.Lambda<Action<Counter, int>> (
-				CustomExpression.For (
-					i,
-					Expression.Constant (0),
+			var hitcounter = Expression.Lambda<Action<Counter, int, int>> (
+				CustomExpression.DoWhile (
 					Expression.LessThan (i, l),
-					Expression.PreIncrementAssign (i),
+					Expression.Block (
+						Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
+						Expression.PreIncrementAssign (i))
+					),
+				c, i, l).Compile ();
+
+			hitcounter (counter, 100, 10);
+
+			Assert.AreEqual (1, counter.Count);
+		}
+
+		[Test]
+		public void DoWhileBreakContinue ()
+		{
+			var counter = new Counter ();
+
+			var c = Expression.Parameter (typeof (Counter), "c");
+			var i = Expression.Parameter (typeof (int), "i");
+			var l = Expression.Parameter (typeof (int), "l");
+
+			var loop_break = Expression.Label ("for_break");
+			var loop_continue = Expression.Label ("for_continue");
+
+			var hitcounter = Expression.Lambda<Action<Counter, int, int>> (
+				CustomExpression.DoWhile (
+					Expression.LessThan (i, l),
 					Expression.Block (
 						Expression.Condition (
 							Expression.LessThan (i, Expression.Constant (10)),
-							Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
-							Expression.Goto (for_break))),
-					for_break),
-				c, l).Compile ();
+							Expression.Block (
+								Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
+								Expression.PostIncrementAssign (i),
+								Expression.Goto (loop_continue)),
+							Expression.Goto (loop_break))),
+					loop_break,
+					loop_continue),
+				c, i, l).Compile ();
 
-			hitcounter (counter, 100);
+			hitcounter (counter, 0, 100);
 
 			Assert.AreEqual (10, counter.Count);
-		}
-
-		[Test]
-		public void ForContinue ()
-		{
-			var counter = new Counter ();
-
-			var c = Expression.Parameter (typeof (Counter), "c");
-			var l = Expression.Parameter (typeof (int), "l");
-
-			var i = Expression.Variable (typeof (int), "i");
-			var for_break = Expression.Label ("for_break");
-			var for_continue = Expression.Label ("for_continue");
-
-			var hitcounter = Expression.Lambda<Action<Counter, int>> (
-				CustomExpression.For (
-					i,
-					Expression.Constant (0),
-					Expression.LessThan (i, l),
-					Expression.PreIncrementAssign (i),
-					Expression.Block (
-						Expression.Condition (
-							Expression.Equal (Expression.Modulo (i, Expression.Constant (2)), Expression.Constant (0)),
-							Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes)),
-							Expression.Goto (for_continue))),
-					for_break,
-					for_continue),
-				c, l).Compile ();
-
-			hitcounter (counter, 10);
-
-			Assert.AreEqual (5, counter.Count);
 		}
 	}
 }

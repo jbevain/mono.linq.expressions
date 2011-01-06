@@ -924,7 +924,11 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitMember (MemberExpression node)
 		{
-			Visit (node.Expression);
+			if (node.Expression != null)
+				Visit (node.Expression);
+			else
+				VisitType (node.Member.DeclaringType);
+
 			WriteToken (".");
 			WriteReference (node.Member.Name, node.Member);
 

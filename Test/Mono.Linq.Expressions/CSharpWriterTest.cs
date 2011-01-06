@@ -1097,5 +1097,19 @@ void (int i, int l)
 }
 ", lambda);
 		}
+
+		[Test]
+		public void StringEmpty ()
+		{
+			var lambda = Expression.Lambda<Func<string>> (
+				Expression.Field (null, typeof (string).GetField ("Empty")));
+
+			AssertExpression (@"
+string ()
+{
+	return string.Empty;
+}
+", lambda);
+		}
 	}
 }

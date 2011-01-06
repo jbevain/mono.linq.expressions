@@ -41,6 +41,14 @@ namespace Mono.Linq.Expressions {
 			return self.NodeType == type;
 		}
 
+		public static bool Is (this CustomExpression self, CustomExpressionType type)
+		{
+			if (self == null)
+				throw new ArgumentNullException ("self");
+
+			return self.CustomNodeType == type;
+		}
+
 		public static ConstantExpression ToConstant<T> (this T self)
 		{
 			return Expression.Constant (self, typeof (T));

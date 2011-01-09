@@ -1111,5 +1111,28 @@ string ()
 }
 ", lambda);
 		}
+
+		public static void Test<TFoo, TFighter> (TFoo foo, TFighter fighter)
+		{
+		}
+
+		[Test]
+		public void GenericMethod ()
+		{
+			var foo = Expression.Parameter (typeof (int), "foo");
+			var fighter = Expression.Parameter (typeof (string), "fighter");
+
+			var lambda = Expression.Lambda<Action<int, string>> (
+				Expression.Call (typeof (CSharpWriterTest), "Test", new [] { typeof (int), typeof (string) }, foo, fighter),
+				foo,
+				fighter);
+
+			AssertExpression (@"
+void (int foo, string fighter)
+{
+	CSharpWriterTest.Test<int, string>(foo, fighter);
+}
+", lambda);
+		}
 	}
 }

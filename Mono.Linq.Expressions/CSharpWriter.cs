@@ -206,7 +206,12 @@ namespace Mono.Linq.Expressions {
 		{
 			WriteReference (CleanGenericName (type), type);
 
-			VisitList (type.GetGenericArguments (), "<", VisitType, ">");
+			VisitGenericArguments (type.GetGenericArguments ());
+		}
+
+		void VisitGenericArguments (Type [] generic_arguments)
+		{
+			VisitList (generic_arguments, "<", VisitType, ">");
 		}
 
 		static string CleanGenericName (Type type)
@@ -870,6 +875,9 @@ namespace Mono.Linq.Expressions {
 			WriteToken (".");
 
 			WriteReference (method.Name, method);
+
+			if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
+				VisitGenericArguments (method.GetGenericArguments ());
 
 			VisitArguments (node.Arguments);
 

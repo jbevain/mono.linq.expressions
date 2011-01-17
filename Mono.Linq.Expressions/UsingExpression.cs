@@ -33,8 +33,13 @@ namespace Mono.Linq.Expressions {
 
 	public class UsingExpression : CustomExpression {
 
+		readonly ParameterExpression variable;
 		readonly Expression disposable;
 		readonly Expression body;
+
+		public new ParameterExpression Variable {
+			get { return variable; }
+		}
 
 		public Expression Disposable {
 			get { return disposable; }
@@ -52,37 +57,39 @@ namespace Mono.Linq.Expressions {
 			get { return CustomExpressionType.UsingExpression; }
 		}
 
-		internal UsingExpression (Expression disposable, Expression body)
+		internal UsingExpression (ParameterExpression variable, Expression disposable, Expression body)
 		{
+			this.variable = variable;
 			this.disposable = disposable;
 			this.body = body;
 		}
 
-		public UsingExpression Update (Expression disposable, Expression body)
+		public UsingExpression Update (ParameterExpression variable, Expression disposable, Expression body)
 		{
-			if (this.disposable == disposable && this.body == body)
+			if (this.variable == variable && this.disposable == disposable && this.body == body)
 				return this;
 
-			return CustomExpression.Using (disposable, body);
+			return CustomExpression.Using (variable, disposable, body);
 		}
 
 		public override Expression Reduce ()
 		{
 			var end_finally = Expression.Label ("end_finally");
 
-			var variable = Expression.Variable (typeof (IDisposable));
+			var disp_variable = Expression.Variable (typeof (IDisposable));
 
 			return Expression.Block (
-				new [] { variable },
-				Expression.Assign (variable, Expression.Convert (disposable, typeof (IDisposable))),
+				new [] { variable, disp_variable },
+				Expression.Assign (variable, disposable),
+				Expression.Assign (disp_variable, Expression.Convert (variable, typeof (IDisposable))),
 				Expression.TryFinally (
 					body,
 					Expression.Block (
 						Expression.Condition (
-							Expression.NotEqual (variable, Expression.Constant (null)),
+							Expression.NotEqual (disp_variable, Expression.Constant (null)),
 							Expression.Block (
 								Expression.Call (
-									variable,
+									disp_variable,
 									typeof (IDisposable).GetMethod ("Dispose")),
 								Expression.Goto (end_finally)),
 							Expression.Goto (end_finally)),
@@ -92,6 +99,7 @@ namespace Mono.Linq.Expressions {
 		protected override Expression VisitChildren (ExpressionVisitor visitor)
 		{
 			return Update (
+				(ParameterExpression) visitor.Visit (variable),
 				visitor.Visit (disposable),
 				visitor.Visit (body));
 		}
@@ -106,6 +114,11 @@ namespace Mono.Linq.Expressions {
 
 		public static UsingExpression Using (Expression disposable, Expression body)
 		{
+			return Using (null, disposable, body);
+		}
+
+		public static UsingExpression Using (ParameterExpression variable, Expression disposable, Expression body)
+		{
 			if (disposable == null)
 				throw new ArgumentNullException ("disposable");
 			if (body == null)
@@ -114,7 +127,10 @@ namespace Mono.Linq.Expressions {
 			if (!typeof (IDisposable).IsAssignableFrom (disposable.Type))
 				throw new ArgumentException ("The disposable must implement IDisposable", "disposable");
 
-			return new UsingExpression (disposable, body);
+			if (variable == null)
+				variable = Expression.Parameter (disposable.Type);
+
+			return new UsingExpression (variable, disposable, body);
 		}
 	}
 }

@@ -83,6 +83,7 @@ namespace Mono.Linq.Expressions {
 		protected internal virtual Expression VisitUsingExpression (UsingExpression node)
 		{
 			return node.Update (
+				(ParameterExpression) Visit (node.Variable),
 				Visit (node.Disposable),
 				Visit (node.Body));
 		}

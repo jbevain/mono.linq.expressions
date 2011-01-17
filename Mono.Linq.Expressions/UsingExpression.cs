@@ -76,20 +76,17 @@ namespace Mono.Linq.Expressions {
 		{
 			var end_finally = Expression.Label ("end_finally");
 
-			var disp_variable = Expression.Variable (typeof (IDisposable));
-
 			return Expression.Block (
-				new [] { variable, disp_variable },
+				new [] { variable },
 				Expression.Assign (variable, disposable),
-				Expression.Assign (disp_variable, Expression.Convert (variable, typeof (IDisposable))),
 				Expression.TryFinally (
 					body,
 					Expression.Block (
 						Expression.Condition (
-							Expression.NotEqual (disp_variable, Expression.Constant (null)),
+							Expression.NotEqual (variable, Expression.Constant (null)),
 							Expression.Block (
 								Expression.Call (
-									disp_variable,
+									Expression.Convert (variable, typeof (IDisposable)),
 									typeof (IDisposable).GetMethod ("Dispose")),
 								Expression.Goto (end_finally)),
 							Expression.Goto (end_finally)),

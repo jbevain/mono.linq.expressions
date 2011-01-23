@@ -629,7 +629,7 @@ namespace Mono.Linq.Expressions {
 			VisitType (node.Type);
 			WriteToken (")");
 
-			Visit (node.Operand);
+			VisitParenthesizedExpression (node.Operand);
 		}
 
 		void VisitConvertChecked (UnaryExpression node)

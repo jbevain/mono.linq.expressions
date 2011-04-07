@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>Mono.Linq.Expressions</id>
+    <version>1.0.0.0</version>
+    <title>Mono.Linq.Expressions</title>
+    <authors>Jb Evain</authors>
+    <owners>Jb Evain</owners>
+    <licenseUrl>http://opensource.org/licenses/mit-license.php</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>http://github.com/jbevain/mono.linq.expressions/</projectUrl>
+    <description>Complement for System.Linq.Expressions, including C# writer and custom Expression nodes.</description>
+    <language>en-US</language>
+    <tags>linq expression-tree expressions writer</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\*.dll" target="lib" />
+  </files>
+</package>

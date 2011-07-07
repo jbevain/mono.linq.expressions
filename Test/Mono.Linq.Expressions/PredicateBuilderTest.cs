@@ -47,7 +47,7 @@ namespace Mono.Linq.Expressions {
 			var predicate = PredicateBuilder.True<int> ().AndAlso (PredicateBuilder.True<int> ());
 
 			AssertExpression (@"
-bool (int)
+bool (int var_$0)
 {
 	return true && true;
 }
@@ -60,7 +60,7 @@ bool (int)
 			var predicate = PredicateBuilder.True<int> ().OrElse (PredicateBuilder.False<int> ());
 
 			AssertExpression (@"
-bool (int)
+bool (int var_$0)
 {
 	return true || false;
 }
@@ -73,7 +73,7 @@ bool (int)
 			var predicate = PredicateBuilder.True<int> ().Not ();
 
 			AssertExpression (@"
-bool (int)
+bool (int var_$0)
 {
 	return !true;
 }

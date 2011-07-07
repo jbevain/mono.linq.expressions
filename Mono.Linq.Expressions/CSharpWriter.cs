@@ -34,6 +34,10 @@ namespace Mono.Linq.Expressions {
 
 	public class CSharpWriter : ExpressionWriter {
 
+		readonly Dictionary<ParameterExpression, string> unique_names = new Dictionary<ParameterExpression, string> ();
+
+		int unique_seed;
+
 		public CSharpWriter (IFormatter formatter)
 			: base (formatter)
 		{
@@ -71,12 +75,32 @@ namespace Mono.Linq.Expressions {
 		{
 			VisitParenthesizedList (node.Parameters, parameter => {
 				VisitType (parameter.Type);
-
-				if (!string.IsNullOrEmpty (parameter.Name)) {
-					WriteSpace ();
-					WriteIdentifier (parameter.Name, parameter);
-				}
+				WriteSpace ();
+				WriteIdentifier (NameFor (parameter), parameter);
 			});
+		}
+
+		string NameFor (ParameterExpression parameter)
+		{
+			if (!string.IsNullOrEmpty (parameter.Name))
+				return parameter.Name;
+
+			var name = GeneratedNameFor (parameter);
+			if (name != null)
+				return name;
+
+			name = "var_$" + unique_seed++;
+			unique_names.Add (parameter, name);
+			return name;
+		}
+
+		string GeneratedNameFor (ParameterExpression parameter)
+		{
+			string name;
+			if (!unique_names.TryGetValue (parameter, out name))
+				return null;
+
+			return name;
 		}
 
 		void VisitLambdaBody (LambdaExpression node)
@@ -322,7 +346,7 @@ namespace Mono.Linq.Expressions {
 			foreach (var variable in node.Variables) {
 				VisitType (variable.Type);
 				WriteSpace ();
-				WriteIdentifier (variable.Name, variable);
+				WriteIdentifier (NameFor (variable), variable);
 				WriteToken (";");
 				WriteLine ();
 			}
@@ -732,7 +756,7 @@ namespace Mono.Linq.Expressions {
 
 		protected override Expression VisitParameter (ParameterExpression node)
 		{
-			WriteIdentifier (node.Name, node);
+			WriteIdentifier (NameFor (node), node);
 
 			return node;
 		}
@@ -1147,7 +1171,7 @@ namespace Mono.Linq.Expressions {
 			VisitType (node.Test);
 			if (node.Variable != null) {
 				WriteSpace ();
-				WriteIdentifier (node.Variable.Name, node.Variable);
+				WriteIdentifier (NameFor (node.Variable), node.Variable);
 			}
 			WriteToken (")");
 

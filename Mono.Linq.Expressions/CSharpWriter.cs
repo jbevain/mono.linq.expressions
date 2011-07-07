@@ -406,7 +406,7 @@ namespace Mono.Linq.Expressions {
 
 		void VisitPower (BinaryExpression node)
 		{
-			var pow = Expression.Call (typeof (Math).GetMethod ("Pow"), node.Left, node.Right);
+			var pow = Expression.Call (typeof (System.Math).GetMethod ("Pow"), node.Left, node.Right);
 
 			if (node.Is (ExpressionType.Power))
 				Visit (pow);

@@ -54,7 +54,12 @@ class FluentExtensionsGenerator {
 
 	static string Parameters (MethodInfo method)
 	{
-		return string.Join (", ", method.GetParameters ().Select (p => string.Format ("{0} {1}", TypeName (p.ParameterType), ParameterName (p))).ToArray ());
+		return string.Join (", ", method.GetParameters ().Select (p => string.Format ("{0}{1} {2}", Params (p), TypeName (p.ParameterType), ParameterName (p))).ToArray ());
+	}
+
+	static string Params (ParameterInfo parameter)
+	{
+		return Attribute.IsDefined (parameter, typeof (ParamArrayAttribute)) ? "params " : "";
 	}
 
 	static string ParameterName (ParameterInfo parameter)

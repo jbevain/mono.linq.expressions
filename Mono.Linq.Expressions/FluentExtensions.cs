@@ -449,7 +449,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.MakeIndex (instance, indexer, arguments);
 		}
 
-		public static IndexExpression ArrayAccess (this Expression array, Expression[] indexes) {
+		public static IndexExpression ArrayAccess (this Expression array, params Expression[] indexes) {
 			return Expression.ArrayAccess (array, indexes);
 		}
 
@@ -457,11 +457,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.ArrayAccess (array, indexes);
 		}
 
-		public static IndexExpression Property (this Expression instance, String propertyName, Expression[] arguments) {
+		public static IndexExpression Property (this Expression instance, String propertyName, params Expression[] arguments) {
 			return Expression.Property (instance, propertyName, arguments);
 		}
 
-		public static IndexExpression Property (this Expression instance, PropertyInfo indexer, Expression[] arguments) {
+		public static IndexExpression Property (this Expression instance, PropertyInfo indexer, params Expression[] arguments) {
 			return Expression.Property (instance, indexer, arguments);
 		}
 
@@ -469,7 +469,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Property (instance, indexer, arguments);
 		}
 
-		public static InvocationExpression Invoke (this Expression expression, Expression[] arguments) {
+		public static InvocationExpression Invoke (this Expression expression, params Expression[] arguments) {
 			return Expression.Invoke (expression, arguments);
 		}
 
@@ -477,11 +477,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.Invoke (expression, arguments);
 		}
 
-		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, ParameterExpression[] parameters) {
+		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, params ParameterExpression[] parameters) {
 			return Expression.Lambda<TDelegate> (body, parameters);
 		}
 
-		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, Boolean tailCall, ParameterExpression[] parameters) {
+		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, Boolean tailCall, params ParameterExpression[] parameters) {
 			return Expression.Lambda<TDelegate> (body, tailCall, parameters);
 		}
 
@@ -501,11 +501,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda<TDelegate> (body, name, tailCall, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Expression body, ParameterExpression[] parameters) {
+		public static LambdaExpression Lambda (this Expression body, params ParameterExpression[] parameters) {
 			return Expression.Lambda (body, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Expression body, Boolean tailCall, ParameterExpression[] parameters) {
+		public static LambdaExpression Lambda (this Expression body, Boolean tailCall, params ParameterExpression[] parameters) {
 			return Expression.Lambda (body, tailCall, parameters);
 		}
 
@@ -525,7 +525,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda (body, name, tailCall, parameters);
 		}
 
-		public static ListInitExpression ListInit (this NewExpression newExpression, Expression[] initializers) {
+		public static ListInitExpression ListInit (this NewExpression newExpression, params Expression[] initializers) {
 			return Expression.ListInit (newExpression, initializers);
 		}
 
@@ -533,7 +533,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.ListInit (newExpression, initializers);
 		}
 
-		public static ListInitExpression ListInit (this NewExpression newExpression, MethodInfo addMethod, Expression[] initializers) {
+		public static ListInitExpression ListInit (this NewExpression newExpression, MethodInfo addMethod, params Expression[] initializers) {
 			return Expression.ListInit (newExpression, addMethod, initializers);
 		}
 
@@ -541,7 +541,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.ListInit (newExpression, addMethod, initializers);
 		}
 
-		public static ListInitExpression ListInit (this NewExpression newExpression, ElementInit[] initializers) {
+		public static ListInitExpression ListInit (this NewExpression newExpression, params ElementInit[] initializers) {
 			return Expression.ListInit (newExpression, initializers);
 		}
 
@@ -597,7 +597,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.MakeMemberAccess (expression, member);
 		}
 
-		public static MemberInitExpression MemberInit (this NewExpression newExpression, MemberBinding[] bindings) {
+		public static MemberInitExpression MemberInit (this NewExpression newExpression, params MemberBinding[] bindings) {
 			return Expression.MemberInit (newExpression, bindings);
 		}
 
@@ -609,7 +609,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Call (instance, method);
 		}
 
-		public static MethodCallExpression Call (this Expression instance, MethodInfo method, Expression[] arguments) {
+		public static MethodCallExpression Call (this Expression instance, MethodInfo method, params Expression[] arguments) {
 			return Expression.Call (instance, method, arguments);
 		}
 
@@ -621,7 +621,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Call (instance, method, arg0, arg1, arg2);
 		}
 
-		public static MethodCallExpression Call (this Expression instance, String methodName, Type[] typeArguments, Expression[] arguments) {
+		public static MethodCallExpression Call (this Expression instance, String methodName, Type[] typeArguments, params Expression[] arguments) {
 			return Expression.Call (instance, methodName, typeArguments, arguments);
 		}
 
@@ -629,7 +629,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Call (instance, method, arguments);
 		}
 
-		public static MethodCallExpression ArrayIndex (this Expression array, Expression[] indexes) {
+		public static MethodCallExpression ArrayIndex (this Expression array, params Expression[] indexes) {
 			return Expression.ArrayIndex (array, indexes);
 		}
 
@@ -637,7 +637,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.ArrayIndex (array, indexes);
 		}
 
-		public static SwitchCase SwitchCase (this Expression body, Expression[] testValues) {
+		public static SwitchCase SwitchCase (this Expression body, params Expression[] testValues) {
 			return Expression.SwitchCase (body, testValues);
 		}
 
@@ -645,15 +645,15 @@ namespace Mono.Linq.Expressions {
 			return Expression.SwitchCase (body, testValues);
 		}
 
-		public static SwitchExpression Switch (this Expression switchValue, SwitchCase[] cases) {
+		public static SwitchExpression Switch (this Expression switchValue, params SwitchCase[] cases) {
 			return Expression.Switch (switchValue, cases);
 		}
 
-		public static SwitchExpression Switch (this Expression switchValue, Expression defaultBody, SwitchCase[] cases) {
+		public static SwitchExpression Switch (this Expression switchValue, Expression defaultBody, params SwitchCase[] cases) {
 			return Expression.Switch (switchValue, defaultBody, cases);
 		}
 
-		public static SwitchExpression Switch (this Expression switchValue, Expression defaultBody, MethodInfo comparison, SwitchCase[] cases) {
+		public static SwitchExpression Switch (this Expression switchValue, Expression defaultBody, MethodInfo comparison, params SwitchCase[] cases) {
 			return Expression.Switch (switchValue, defaultBody, comparison, cases);
 		}
 
@@ -669,11 +669,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.TryFinally (body, @finally);
 		}
 
-		public static TryExpression TryCatch (this Expression body, CatchBlock[] handlers) {
+		public static TryExpression TryCatch (this Expression body, params CatchBlock[] handlers) {
 			return Expression.TryCatch (body, handlers);
 		}
 
-		public static TryExpression TryCatchFinally (this Expression body, Expression @finally, CatchBlock[] handlers) {
+		public static TryExpression TryCatchFinally (this Expression body, Expression @finally, params CatchBlock[] handlers) {
 			return Expression.TryCatchFinally (body, @finally, handlers);
 		}
 

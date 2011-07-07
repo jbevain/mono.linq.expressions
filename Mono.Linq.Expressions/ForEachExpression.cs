@@ -116,24 +116,14 @@ namespace Mono.Linq.Expressions {
 
 			return Expression.Block (
 				new [] { enumerator },
-				Expression.Assign (
-					enumerator,
-					Expression.Call (
-						Expression.Convert (enumerable, enumerable_type),
-						enumerable_type.GetMethod ("GetEnumerator"))),
+				enumerator.Assign (Expression.Call (enumerable.Convert (enumerable_type), enumerable_type.GetMethod ("GetEnumerator"))),
 				Expression.TryFinally (
 					Expression.Block (
 						new[] { variable },
 						Expression.Goto (@continue),
 						Expression.Loop (
 							Expression.Block (
-								Expression.Assign (
-									variable,
-									Expression.Convert (
-										Expression.Property (
-											enumerator,
-											"Current"),
-										variable.Type)),
+								variable.Assign (enumerator.Property ("Current").Convert (variable.Type)),
 									body,
 									Expression.Label (@continue),
 									Expression.Condition (
@@ -147,16 +137,11 @@ namespace Mono.Linq.Expressions {
 						Expression.Label (@break)),
 					Expression.Block (
 						new [] { disposable },
-						Expression.Assign (
-							disposable,
-							Expression.TypeAs (enumerator, typeof (IDisposable))),
-							Expression.Condition (
-								Expression.NotEqual (
-									disposable,
-									Expression.Constant (null)),
-								Expression.Call (disposable, typeof (IDisposable).GetMethod ("Dispose", Type.EmptyTypes)),
-								Expression.Goto (end_finally)),
-							Expression.Label (end_finally))));
+						disposable.Assign (enumerator.TypeAs (typeof (IDisposable))),
+						disposable.NotEqual (Expression.Constant (null)).Condition (
+							Expression.Call (disposable, typeof (IDisposable).GetMethod ("Dispose", Type.EmptyTypes)),
+							Expression.Goto (end_finally)),
+						Expression.Label (end_finally))));
 		}
 
 		bool TryGetGenericEnumerableArgument (out Type argument)

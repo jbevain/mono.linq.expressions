@@ -78,15 +78,14 @@ namespace Mono.Linq.Expressions {
 
 			return Expression.Block (
 				new [] { variable },
-				Expression.Assign (variable, disposable),
+				variable.Assign (disposable),
 				Expression.TryFinally (
 					body,
 					Expression.Block (
-						Expression.Condition (
-							Expression.NotEqual (variable, Expression.Constant (null)),
+						variable.NotEqual (Expression.Constant (null)).Condition (
 							Expression.Block (
 								Expression.Call (
-									Expression.Convert (variable, typeof (IDisposable)),
+									variable.Convert (typeof (IDisposable)),
 									typeof (IDisposable).GetMethod ("Dispose")),
 								Expression.Goto (end_finally)),
 							Expression.Goto (end_finally)),

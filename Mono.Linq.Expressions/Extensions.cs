@@ -48,10 +48,5 @@ namespace Mono.Linq.Expressions {
 
 			return self.CustomNodeType == type;
 		}
-
-		public static ConstantExpression ToConstant<T> (this T self)
-		{
-			return Expression.Constant (self, typeof (T));
-		}
 	}
 }

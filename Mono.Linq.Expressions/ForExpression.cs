@@ -113,14 +113,13 @@ namespace Mono.Linq.Expressions {
 
 			return Expression.Block (
 				new [] { variable },
-				Expression.Assign (variable, initializer),
+				variable.Assign (initializer),
 				Expression.Loop (
 					Expression.Block (
 						body,
 						Expression.Label (@continue),
 						step,
-						Expression.Condition (
-							test,
+						test.Condition (
 							Expression.Continue (inner_loop_continue),
 							Expression.Break (inner_loop_break))),
 					inner_loop_break,

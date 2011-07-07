@@ -97,8 +97,7 @@ namespace Mono.Linq.Expressions {
 					Expression.Block (
 						Expression.Label (@continue),
 						body,
-						Expression.Condition (
-							test,
+						test.Condition (
 							Expression.Goto (inner_loop_continue),
 							Expression.Goto (inner_loop_break))),
 					inner_loop_break,

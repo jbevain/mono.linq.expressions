@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Mono.Linq.Expressions\DoWhileExpression.cs" />
+    <Compile Include="Mono.Linq.Expressions\FluentExtensions.cs" />
     <Compile Include="Mono.Linq.Expressions\UsingExpression.cs" />
     <Compile Include="Mono.Linq.Expressions\WhileExpression.cs" />
     <Compile Include="Mono.Linq.Expressions\CustomExpressionVisitor.cs" />

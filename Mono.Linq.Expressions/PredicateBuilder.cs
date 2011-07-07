@@ -62,7 +62,7 @@ namespace Mono.Linq.Expressions {
 			var parameter = CreateParameterFrom (self);
 
 			return Expression.Lambda<Func<T, bool>> (
-				Expression.Not (RewriteLambdaBody (self, parameter)),
+				RewriteLambdaBody (self, parameter).Not (),
 				parameter);
 		}
 

@@ -40,7 +40,7 @@ namespace Mono.Linq.Expressions {
 	[TestFixture]
 	public class CSharpWriterTest : BaseExpressionTest {
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Add ()
 		{
 			var x = Expression.Parameter (typeof (int), "x");
@@ -56,7 +56,7 @@ int (int x, int y)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void AssignVariable ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -82,7 +82,7 @@ int (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void PopExpression ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -98,7 +98,7 @@ void (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ReturnFromIfElse ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -141,7 +141,7 @@ int (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void LogicalOperators ()
 		{
 			var a = Expression.Parameter (typeof (bool), "a");
@@ -164,7 +164,7 @@ bool (bool a, bool b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void BinaryBooleanOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -200,7 +200,7 @@ bool (int a, int b)
 		}
 
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void BinaryOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -239,7 +239,7 @@ int (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void BinaryCheckedOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -264,7 +264,7 @@ int (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void BinaryAssignOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -303,7 +303,7 @@ int (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void BinaryAssignCheckedOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -328,7 +328,7 @@ int (int a, int b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void UnaryOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -352,7 +352,7 @@ int (int a)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void UnaryCheckedOperators ()
 		{
 			var a = Expression.Parameter (typeof (int), "a");
@@ -372,7 +372,7 @@ int (int a)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void UnaryLogicalOperators ()
 		{
 			var a = Expression.Parameter (typeof (bool), "a");
@@ -393,7 +393,7 @@ bool (bool a)
 		}
 
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Power ()
 		{
 			var d = Expression.Parameter (typeof (double), "d");
@@ -411,7 +411,7 @@ double (double d, double e)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void PowerAssign ()
 		{
 			var d = Expression.Parameter (typeof (double), "d");
@@ -432,7 +432,7 @@ double (double d, double e)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Invocation ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -450,7 +450,7 @@ int (int i, Func<int, int> f)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Coalesce ()
 		{
 			var a = Expression.Parameter (typeof (string), "a");
@@ -468,7 +468,7 @@ string (string a, string b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ThrowNewNotSupportedException ()
 		{
 			var lambda = Expression.Lambda<Action> (
@@ -483,7 +483,7 @@ void ()
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void IsTrueOrIsFalse ()
 		{
 			var b = Expression.Parameter (typeof (bool), "b");
@@ -502,7 +502,7 @@ bool (bool b)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ArrayLength ()
 		{
 			var array = Expression.Parameter (typeof (int []), "array");
@@ -519,7 +519,7 @@ int (int[] array)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ArrayIndex ()
 		{
 			var array = Expression.Parameter (typeof (int []), "array");
@@ -536,7 +536,7 @@ int (int[] array)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void NewArrayInit ()
 		{
 			var lambda = Expression.Lambda<Func<string []>> (
@@ -554,7 +554,7 @@ string[] ()
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void NewArrayBounds ()
 		{
 			var lambda = Expression.Lambda<Func<string [,,]>> (
@@ -572,7 +572,7 @@ string[,,] ()
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Indexer ()
 		{
 			var list = Expression.Parameter (typeof (List<string>), "list");
@@ -590,7 +590,7 @@ string (List<string> list, int i)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void TernaryConditional ()
 		{
 			var b = Expression.Parameter (typeof (bool), "b");
@@ -605,7 +605,7 @@ char TernaryConditional(bool b)
 ", expression, b);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ListInitList ()
 		{
 			var list_string_add = typeof (List<string>).GetMethod ("Add");
@@ -623,7 +623,7 @@ List<string> ListInitList()
 ", expression);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ListInitDict ()
 		{
 			var dict_string_int_add = typeof (Dictionary<string, int>).GetMethod ("Add");
@@ -652,7 +652,7 @@ Dictionary<string, int> ListInitDict()
 			public string Name { get; set; }
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void MemberInit ()
 		{
 			var list_int_add = typeof (List<int>).GetMethod ("Add");
@@ -684,7 +684,7 @@ Foo MemberInit()
 ", expression);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void TypeAs ()
 		{
 			var s = Expression.Parameter (typeof (string), "s");
@@ -699,7 +699,7 @@ object TypeAs(string s)
 ", expression, s);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void TypeEqual ()
 		{
 			var o = Expression.Parameter (typeof (object), "o");
@@ -713,7 +713,7 @@ bool TypeEqual(object o)
 ", expression, o);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void TypeIs ()
 		{
 			var o = Expression.Parameter (typeof (object), "o");
@@ -732,7 +732,7 @@ bool TypeIs(object o)
 			return Expression.Call (typeof (Console).GetMethod ("WriteLine", new [] { operand.GetType () }), Expression.Constant (operand));
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ExceptionHandling ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -773,7 +773,7 @@ void ExceptionHandling(int i)
 ", body, i);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Loop ()
 		{
 			var @break = Expression.Label ();
@@ -829,7 +829,7 @@ void Loop()
 ", body);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Switch ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -868,7 +868,7 @@ int Switch(int i)
 ", body, i);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void IncrementDecrement ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -896,7 +896,7 @@ int IncrementDecrement(int i)
 ", body, i);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Default ()
 		{
 			var body = Expression.Default (typeof (int));
@@ -909,7 +909,7 @@ int Default()
 ", body);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Convert ()
 		{
 			var o = Expression.Parameter (typeof (object), "o");
@@ -924,7 +924,7 @@ string Convert(object o)
 ", body, o);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ConvertChecked ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -939,7 +939,7 @@ short ConvertChecked(int i)
 ", body, i);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Unbox ()
 		{
 			var o = Expression.Parameter (typeof (object), "o");
@@ -954,7 +954,7 @@ int Unbox(object o)
 ", body, o);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void QuoteLambda ()
 		{
 			var s = Expression.Parameter (typeof (string), "s");
@@ -975,7 +975,7 @@ Expression<Func<string>> (string s)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void For ()
 		{
 			var l = Expression.Parameter (typeof (int), "l");
@@ -1002,7 +1002,7 @@ void (int l)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void ForEach ()
 		{
 			var args = Expression.Parameter (typeof (string []), "args");
@@ -1027,7 +1027,7 @@ void (string[] args)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void Using ()
 		{
 			var arg = Expression.Parameter (typeof (IDisposable), "arg");
@@ -1049,7 +1049,7 @@ void (IDisposable arg)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void DoWhile ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -1074,7 +1074,7 @@ void (int i, int l)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void While ()
 		{
 			var i = Expression.Parameter (typeof (int), "i");
@@ -1098,7 +1098,7 @@ void (int i, int l)
 ", lambda);
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void StringEmpty ()
 		{
 			var lambda = Expression.Lambda<Func<string>> (
@@ -1116,7 +1116,7 @@ string ()
 		{
 		}
 
-		[Test]
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void GenericMethod ()
 		{
 			var foo = Expression.Parameter (typeof (int), "foo");

@@ -13,6 +13,7 @@ class FluentExtensionsGenerator {
 		Console.WriteLine ();
 		Console.WriteLine ("using System;");
 		Console.WriteLine ("using System.Collections.Generic;");
+		Console.WriteLine ("using System.Runtime.CompilerServices;");
 		Console.WriteLine ("using System.Linq.Expressions;");
 		Console.WriteLine ("using System.Reflection;");
 		Console.WriteLine ();
@@ -20,7 +21,7 @@ class FluentExtensionsGenerator {
 		Console.WriteLine ();
 		Console.WriteLine ("\tpublic static class FluentExtensions {");
 		Console.WriteLine ();
-		foreach (var method in typeof (Expression).GetMethods (BindingFlags.Public | BindingFlags.Static).Where (m => m.GetParameters ().Any () && typeof (Expression).IsAssignableFrom (m.GetParameters ().First ().ParameterType))) {
+		foreach (var method in typeof (Expression).GetMethods (BindingFlags.Public | BindingFlags.Static).Where (ShouldConvertMethod)) {
 			Console.WriteLine ("\t\t{0} {{", MethodDeclaration (method));
 			Console.WriteLine ("\t\t\treturn {0};", MethodCall (method));
 			Console.WriteLine ("\t\t}");
@@ -30,6 +31,21 @@ class FluentExtensionsGenerator {
 		Console.WriteLine("\t}");
 
 		Console.WriteLine("}");
+	}
+
+	static bool ShouldConvertMethod (MethodInfo method)
+	{
+		var parameters = method.GetParameters ();
+		if (parameters.Length == 0)
+			return false;
+
+		if (IsParams (parameters [0]))
+			return false;
+
+		if (method.Name.StartsWith ("Try"))
+			return false;
+
+		return true;
 	}
 
 	static string MethodCall (MethodInfo method)
@@ -59,7 +75,12 @@ class FluentExtensionsGenerator {
 
 	static string Params (ParameterInfo parameter)
 	{
-		return Attribute.IsDefined (parameter, typeof (ParamArrayAttribute)) ? "params " : "";
+		return IsParams (parameter) ? "params " : "";
+	}
+
+	static bool IsParams (ParameterInfo parameter)
+	{
+		return Attribute.IsDefined (parameter, typeof (ParamArrayAttribute));
 	}
 
 	static string ParameterName (ParameterInfo parameter)

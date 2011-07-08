@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -39,6 +40,18 @@ namespace Mono.Linq.Expressions {
 
 		public static BinaryExpression Assign (this Expression left, Expression right) {
 			return Expression.Assign (left, right);
+		}
+
+		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right) {
+			return Expression.MakeBinary (binaryType, left, right);
+		}
+
+		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+			return Expression.MakeBinary (binaryType, left, right, liftToNull, method);
+		}
+
+		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right, Boolean liftToNull, MethodInfo method, LambdaExpression conversion) {
+			return Expression.MakeBinary (binaryType, left, right, liftToNull, method, conversion);
 		}
 
 		public static BinaryExpression Equal (this Expression left, Expression right) {
@@ -421,12 +434,52 @@ namespace Mono.Linq.Expressions {
 			return Expression.Block (arg0, arg1, arg2, arg3, arg4);
 		}
 
+		public static BlockExpression Block (this IEnumerable<Expression> expressions) {
+			return Expression.Block (expressions);
+		}
+
+		public static BlockExpression Block (this Type type, params Expression[] expressions) {
+			return Expression.Block (type, expressions);
+		}
+
+		public static BlockExpression Block (this Type type, IEnumerable<Expression> expressions) {
+			return Expression.Block (type, expressions);
+		}
+
+		public static BlockExpression Block (this IEnumerable<ParameterExpression> variables, params Expression[] expressions) {
+			return Expression.Block (variables, expressions);
+		}
+
+		public static BlockExpression Block (this Type type, IEnumerable<ParameterExpression> variables, params Expression[] expressions) {
+			return Expression.Block (type, variables, expressions);
+		}
+
+		public static BlockExpression Block (this IEnumerable<ParameterExpression> variables, IEnumerable<Expression> expressions) {
+			return Expression.Block (variables, expressions);
+		}
+
+		public static BlockExpression Block (this Type type, IEnumerable<ParameterExpression> variables, IEnumerable<Expression> expressions) {
+			return Expression.Block (type, variables, expressions);
+		}
+
+		public static CatchBlock Catch (this Type type, Expression body) {
+			return Expression.Catch (type, body);
+		}
+
 		public static CatchBlock Catch (this ParameterExpression variable, Expression body) {
 			return Expression.Catch (variable, body);
 		}
 
+		public static CatchBlock Catch (this Type type, Expression body, Expression filter) {
+			return Expression.Catch (type, body, filter);
+		}
+
 		public static CatchBlock Catch (this ParameterExpression variable, Expression body, Expression filter) {
 			return Expression.Catch (variable, body, filter);
+		}
+
+		public static CatchBlock MakeCatchBlock (this Type type, ParameterExpression variable, Expression body, Expression filter) {
+			return Expression.MakeCatchBlock (type, variable, body, filter);
 		}
 
 		public static ConditionalExpression Condition (this Expression test, Expression ifTrue, Expression ifFalse) {
@@ -443,6 +496,142 @@ namespace Mono.Linq.Expressions {
 
 		public static ConditionalExpression IfThenElse (this Expression test, Expression ifTrue, Expression ifFalse) {
 			return Expression.IfThenElse (test, ifTrue, ifFalse);
+		}
+
+		public static ConstantExpression Constant (this Object value) {
+			return Expression.Constant (value);
+		}
+
+		public static ConstantExpression Constant (this Object value, Type type) {
+			return Expression.Constant (value, type);
+		}
+
+		public static DebugInfoExpression DebugInfo (this SymbolDocumentInfo document, Int32 startLine, Int32 startColumn, Int32 endLine, Int32 endColumn) {
+			return Expression.DebugInfo (document, startLine, startColumn, endLine, endColumn);
+		}
+
+		public static DebugInfoExpression ClearDebugInfo (this SymbolDocumentInfo document) {
+			return Expression.ClearDebugInfo (document);
+		}
+
+		public static DefaultExpression Default (this Type type) {
+			return Expression.Default (type);
+		}
+
+		public static DynamicExpression MakeDynamic (this Type delegateType, CallSiteBinder binder, params Expression[] arguments) {
+			return Expression.MakeDynamic (delegateType, binder, arguments);
+		}
+
+		public static DynamicExpression MakeDynamic (this Type delegateType, CallSiteBinder binder, IEnumerable<Expression> arguments) {
+			return Expression.MakeDynamic (delegateType, binder, arguments);
+		}
+
+		public static DynamicExpression MakeDynamic (this Type delegateType, CallSiteBinder binder, Expression arg0) {
+			return Expression.MakeDynamic (delegateType, binder, arg0);
+		}
+
+		public static DynamicExpression MakeDynamic (this Type delegateType, CallSiteBinder binder, Expression arg0, Expression arg1) {
+			return Expression.MakeDynamic (delegateType, binder, arg0, arg1);
+		}
+
+		public static DynamicExpression MakeDynamic (this Type delegateType, CallSiteBinder binder, Expression arg0, Expression arg1, Expression arg2) {
+			return Expression.MakeDynamic (delegateType, binder, arg0, arg1, arg2);
+		}
+
+		public static DynamicExpression MakeDynamic (this Type delegateType, CallSiteBinder binder, Expression arg0, Expression arg1, Expression arg2, Expression arg3) {
+			return Expression.MakeDynamic (delegateType, binder, arg0, arg1, arg2, arg3);
+		}
+
+		public static DynamicExpression Dynamic (this CallSiteBinder binder, Type returnType, params Expression[] arguments) {
+			return Expression.Dynamic (binder, returnType, arguments);
+		}
+
+		public static DynamicExpression Dynamic (this CallSiteBinder binder, Type returnType, Expression arg0) {
+			return Expression.Dynamic (binder, returnType, arg0);
+		}
+
+		public static DynamicExpression Dynamic (this CallSiteBinder binder, Type returnType, Expression arg0, Expression arg1) {
+			return Expression.Dynamic (binder, returnType, arg0, arg1);
+		}
+
+		public static DynamicExpression Dynamic (this CallSiteBinder binder, Type returnType, Expression arg0, Expression arg1, Expression arg2) {
+			return Expression.Dynamic (binder, returnType, arg0, arg1, arg2);
+		}
+
+		public static DynamicExpression Dynamic (this CallSiteBinder binder, Type returnType, Expression arg0, Expression arg1, Expression arg2, Expression arg3) {
+			return Expression.Dynamic (binder, returnType, arg0, arg1, arg2, arg3);
+		}
+
+		public static DynamicExpression Dynamic (this CallSiteBinder binder, Type returnType, IEnumerable<Expression> arguments) {
+			return Expression.Dynamic (binder, returnType, arguments);
+		}
+
+		public static ElementInit ElementInit (this MethodInfo addMethod, params Expression[] arguments) {
+			return Expression.ElementInit (addMethod, arguments);
+		}
+
+		public static ElementInit ElementInit (this MethodInfo addMethod, IEnumerable<Expression> arguments) {
+			return Expression.ElementInit (addMethod, arguments);
+		}
+
+		public static GotoExpression Break (this LabelTarget target) {
+			return Expression.Break (target);
+		}
+
+		public static GotoExpression Break (this LabelTarget target, Expression value) {
+			return Expression.Break (target, value);
+		}
+
+		public static GotoExpression Break (this LabelTarget target, Type type) {
+			return Expression.Break (target, type);
+		}
+
+		public static GotoExpression Break (this LabelTarget target, Expression value, Type type) {
+			return Expression.Break (target, value, type);
+		}
+
+		public static GotoExpression Continue (this LabelTarget target) {
+			return Expression.Continue (target);
+		}
+
+		public static GotoExpression Continue (this LabelTarget target, Type type) {
+			return Expression.Continue (target, type);
+		}
+
+		public static GotoExpression Return (this LabelTarget target) {
+			return Expression.Return (target);
+		}
+
+		public static GotoExpression Return (this LabelTarget target, Type type) {
+			return Expression.Return (target, type);
+		}
+
+		public static GotoExpression Return (this LabelTarget target, Expression value) {
+			return Expression.Return (target, value);
+		}
+
+		public static GotoExpression Return (this LabelTarget target, Expression value, Type type) {
+			return Expression.Return (target, value, type);
+		}
+
+		public static GotoExpression Goto (this LabelTarget target) {
+			return Expression.Goto (target);
+		}
+
+		public static GotoExpression Goto (this LabelTarget target, Type type) {
+			return Expression.Goto (target, type);
+		}
+
+		public static GotoExpression Goto (this LabelTarget target, Expression value) {
+			return Expression.Goto (target, value);
+		}
+
+		public static GotoExpression Goto (this LabelTarget target, Expression value, Type type) {
+			return Expression.Goto (target, value, type);
+		}
+
+		public static GotoExpression MakeGoto (this GotoExpressionKind kind, LabelTarget target, Expression value, Type type) {
+			return Expression.MakeGoto (kind, target, value, type);
 		}
 
 		public static IndexExpression MakeIndex (this Expression instance, PropertyInfo indexer, IEnumerable<Expression> arguments) {
@@ -475,6 +664,26 @@ namespace Mono.Linq.Expressions {
 
 		public static InvocationExpression Invoke (this Expression expression, IEnumerable<Expression> arguments) {
 			return Expression.Invoke (expression, arguments);
+		}
+
+		public static LabelExpression Label (this LabelTarget target) {
+			return Expression.Label (target);
+		}
+
+		public static LabelExpression Label (this LabelTarget target, Expression defaultValue) {
+			return Expression.Label (target, defaultValue);
+		}
+
+		public static LabelTarget Label (this String name) {
+			return Expression.Label (name);
+		}
+
+		public static LabelTarget Label (this Type type) {
+			return Expression.Label (type);
+		}
+
+		public static LabelTarget Label (this Type type, String name) {
+			return Expression.Label (type, name);
 		}
 
 		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, params ParameterExpression[] parameters) {
@@ -517,12 +726,36 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda (body, tailCall, parameters);
 		}
 
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, params ParameterExpression[] parameters) {
+			return Expression.Lambda (delegateType, body, parameters);
+		}
+
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, Boolean tailCall, params ParameterExpression[] parameters) {
+			return Expression.Lambda (delegateType, body, tailCall, parameters);
+		}
+
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, IEnumerable<ParameterExpression> parameters) {
+			return Expression.Lambda (delegateType, body, parameters);
+		}
+
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+			return Expression.Lambda (delegateType, body, tailCall, parameters);
+		}
+
 		public static LambdaExpression Lambda (this Expression body, String name, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (body, name, parameters);
 		}
 
 		public static LambdaExpression Lambda (this Expression body, String name, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (body, name, tailCall, parameters);
+		}
+
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, String name, IEnumerable<ParameterExpression> parameters) {
+			return Expression.Lambda (delegateType, body, name, parameters);
+		}
+
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, String name, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+			return Expression.Lambda (delegateType, body, name, tailCall, parameters);
 		}
 
 		public static ListInitExpression ListInit (this NewExpression newExpression, params Expression[] initializers) {
@@ -559,6 +792,14 @@ namespace Mono.Linq.Expressions {
 
 		public static LoopExpression Loop (this Expression body, LabelTarget @break, LabelTarget @continue) {
 			return Expression.Loop (body, @break, @continue);
+		}
+
+		public static MemberAssignment Bind (this MemberInfo member, Expression expression) {
+			return Expression.Bind (member, expression);
+		}
+
+		public static MemberAssignment Bind (this MethodInfo propertyAccessor, Expression expression) {
+			return Expression.Bind (propertyAccessor, expression);
 		}
 
 		public static MemberExpression Field (this Expression expression, FieldInfo field) {
@@ -605,6 +846,66 @@ namespace Mono.Linq.Expressions {
 			return Expression.MemberInit (newExpression, bindings);
 		}
 
+		public static MemberListBinding ListBind (this MemberInfo member, params ElementInit[] initializers) {
+			return Expression.ListBind (member, initializers);
+		}
+
+		public static MemberListBinding ListBind (this MemberInfo member, IEnumerable<ElementInit> initializers) {
+			return Expression.ListBind (member, initializers);
+		}
+
+		public static MemberListBinding ListBind (this MethodInfo propertyAccessor, params ElementInit[] initializers) {
+			return Expression.ListBind (propertyAccessor, initializers);
+		}
+
+		public static MemberListBinding ListBind (this MethodInfo propertyAccessor, IEnumerable<ElementInit> initializers) {
+			return Expression.ListBind (propertyAccessor, initializers);
+		}
+
+		public static MemberMemberBinding MemberBind (this MemberInfo member, params MemberBinding[] bindings) {
+			return Expression.MemberBind (member, bindings);
+		}
+
+		public static MemberMemberBinding MemberBind (this MemberInfo member, IEnumerable<MemberBinding> bindings) {
+			return Expression.MemberBind (member, bindings);
+		}
+
+		public static MemberMemberBinding MemberBind (this MethodInfo propertyAccessor, params MemberBinding[] bindings) {
+			return Expression.MemberBind (propertyAccessor, bindings);
+		}
+
+		public static MemberMemberBinding MemberBind (this MethodInfo propertyAccessor, IEnumerable<MemberBinding> bindings) {
+			return Expression.MemberBind (propertyAccessor, bindings);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, Expression arg0) {
+			return Expression.Call (method, arg0);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, Expression arg0, Expression arg1) {
+			return Expression.Call (method, arg0, arg1);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, Expression arg0, Expression arg1, Expression arg2) {
+			return Expression.Call (method, arg0, arg1, arg2);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, Expression arg0, Expression arg1, Expression arg2, Expression arg3) {
+			return Expression.Call (method, arg0, arg1, arg2, arg3);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, Expression arg0, Expression arg1, Expression arg2, Expression arg3, Expression arg4) {
+			return Expression.Call (method, arg0, arg1, arg2, arg3, arg4);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, params Expression[] arguments) {
+			return Expression.Call (method, arguments);
+		}
+
+		public static MethodCallExpression Call (this MethodInfo method, IEnumerable<Expression> arguments) {
+			return Expression.Call (method, arguments);
+		}
+
 		public static MethodCallExpression Call (this Expression instance, MethodInfo method) {
 			return Expression.Call (instance, method);
 		}
@@ -625,6 +926,10 @@ namespace Mono.Linq.Expressions {
 			return Expression.Call (instance, methodName, typeArguments, arguments);
 		}
 
+		public static MethodCallExpression Call (this Type type, String methodName, Type[] typeArguments, params Expression[] arguments) {
+			return Expression.Call (type, methodName, typeArguments, arguments);
+		}
+
 		public static MethodCallExpression Call (this Expression instance, MethodInfo method, IEnumerable<Expression> arguments) {
 			return Expression.Call (instance, method, arguments);
 		}
@@ -635,6 +940,66 @@ namespace Mono.Linq.Expressions {
 
 		public static MethodCallExpression ArrayIndex (this Expression array, IEnumerable<Expression> indexes) {
 			return Expression.ArrayIndex (array, indexes);
+		}
+
+		public static NewArrayExpression NewArrayInit (this Type type, params Expression[] initializers) {
+			return Expression.NewArrayInit (type, initializers);
+		}
+
+		public static NewArrayExpression NewArrayInit (this Type type, IEnumerable<Expression> initializers) {
+			return Expression.NewArrayInit (type, initializers);
+		}
+
+		public static NewArrayExpression NewArrayBounds (this Type type, params Expression[] bounds) {
+			return Expression.NewArrayBounds (type, bounds);
+		}
+
+		public static NewArrayExpression NewArrayBounds (this Type type, IEnumerable<Expression> bounds) {
+			return Expression.NewArrayBounds (type, bounds);
+		}
+
+		public static NewExpression New (this ConstructorInfo constructor) {
+			return Expression.New (constructor);
+		}
+
+		public static NewExpression New (this ConstructorInfo constructor, params Expression[] arguments) {
+			return Expression.New (constructor, arguments);
+		}
+
+		public static NewExpression New (this ConstructorInfo constructor, IEnumerable<Expression> arguments) {
+			return Expression.New (constructor, arguments);
+		}
+
+		public static NewExpression New (this ConstructorInfo constructor, IEnumerable<Expression> arguments, IEnumerable<MemberInfo> members) {
+			return Expression.New (constructor, arguments, members);
+		}
+
+		public static NewExpression New (this ConstructorInfo constructor, IEnumerable<Expression> arguments, params MemberInfo[] members) {
+			return Expression.New (constructor, arguments, members);
+		}
+
+		public static NewExpression New (this Type type) {
+			return Expression.New (type);
+		}
+
+		public static ParameterExpression Parameter (this Type type) {
+			return Expression.Parameter (type);
+		}
+
+		public static ParameterExpression Variable (this Type type) {
+			return Expression.Variable (type);
+		}
+
+		public static ParameterExpression Parameter (this Type type, String name) {
+			return Expression.Parameter (type, name);
+		}
+
+		public static ParameterExpression Variable (this Type type, String name) {
+			return Expression.Variable (type, name);
+		}
+
+		public static RuntimeVariablesExpression RuntimeVariables (this IEnumerable<ParameterExpression> variables) {
+			return Expression.RuntimeVariables (variables);
 		}
 
 		public static SwitchCase SwitchCase (this Expression body, params Expression[] testValues) {
@@ -657,24 +1022,36 @@ namespace Mono.Linq.Expressions {
 			return Expression.Switch (switchValue, defaultBody, comparison, cases);
 		}
 
+		public static SwitchExpression Switch (this Type type, Expression switchValue, Expression defaultBody, MethodInfo comparison, params SwitchCase[] cases) {
+			return Expression.Switch (type, switchValue, defaultBody, comparison, cases);
+		}
+
 		public static SwitchExpression Switch (this Expression switchValue, Expression defaultBody, MethodInfo comparison, IEnumerable<SwitchCase> cases) {
 			return Expression.Switch (switchValue, defaultBody, comparison, cases);
 		}
 
-		public static TryExpression TryFault (this Expression body, Expression fault) {
-			return Expression.TryFault (body, fault);
+		public static SwitchExpression Switch (this Type type, Expression switchValue, Expression defaultBody, MethodInfo comparison, IEnumerable<SwitchCase> cases) {
+			return Expression.Switch (type, switchValue, defaultBody, comparison, cases);
 		}
 
-		public static TryExpression TryFinally (this Expression body, Expression @finally) {
-			return Expression.TryFinally (body, @finally);
+		public static SymbolDocumentInfo SymbolDocument (this String fileName) {
+			return Expression.SymbolDocument (fileName);
 		}
 
-		public static TryExpression TryCatch (this Expression body, params CatchBlock[] handlers) {
-			return Expression.TryCatch (body, handlers);
+		public static SymbolDocumentInfo SymbolDocument (this String fileName, Guid language) {
+			return Expression.SymbolDocument (fileName, language);
 		}
 
-		public static TryExpression TryCatchFinally (this Expression body, Expression @finally, params CatchBlock[] handlers) {
-			return Expression.TryCatchFinally (body, @finally, handlers);
+		public static SymbolDocumentInfo SymbolDocument (this String fileName, Guid language, Guid languageVendor) {
+			return Expression.SymbolDocument (fileName, language, languageVendor);
+		}
+
+		public static SymbolDocumentInfo SymbolDocument (this String fileName, Guid language, Guid languageVendor, Guid documentType) {
+			return Expression.SymbolDocument (fileName, language, languageVendor, documentType);
+		}
+
+		public static TryExpression MakeTry (this Type type, Expression body, Expression @finally, Expression fault, IEnumerable<CatchBlock> handlers) {
+			return Expression.MakeTry (type, body, @finally, fault, handlers);
 		}
 
 		public static TypeBinaryExpression TypeIs (this Expression expression, Type type) {
@@ -683,6 +1060,14 @@ namespace Mono.Linq.Expressions {
 
 		public static TypeBinaryExpression TypeEqual (this Expression expression, Type type) {
 			return Expression.TypeEqual (expression, type);
+		}
+
+		public static UnaryExpression MakeUnary (this ExpressionType unaryType, Expression operand, Type type) {
+			return Expression.MakeUnary (unaryType, operand, type);
+		}
+
+		public static UnaryExpression MakeUnary (this ExpressionType unaryType, Expression operand, Type type, MethodInfo method) {
+			return Expression.MakeUnary (unaryType, operand, type, method);
 		}
 
 		public static UnaryExpression Negate (this Expression expression) {
@@ -771,6 +1156,10 @@ namespace Mono.Linq.Expressions {
 
 		public static UnaryExpression Quote (this Expression expression) {
 			return Expression.Quote (expression);
+		}
+
+		public static UnaryExpression Rethrow (this Type type) {
+			return Expression.Rethrow (type);
 		}
 
 		public static UnaryExpression Throw (this Expression value) {

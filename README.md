@@ -46,8 +46,41 @@ public abstract class CustomExpression {
 ```
 
 > Base class for custom expressions.
-
 > Accept takes a custom visitor which extends the built-in ExpressionVisitor with support for custom expressions.
+
+***
+
+```csharp
+public static class CombineExtensions {
+	public static Expression<T> Combine<T> (
+		this Expression<T> self,
+		Func<Expression, Expression> combinator) where T : Delegate {}
+
+	public static Expression<T> Combine<T> (
+		this Expression<T> self,
+		Expression<T> expression,
+		Func<Expression, Expression, Expression> combinator) where T : Delegate {}
+}
+```csharp
+
+> Helper to combine a fully created lambda with another into a brand new lambda.
+> This is done by rewriting and inlining the bodies in the resulting lamba.
+> With this, combining two predicates with a And expression or negating an expression can be simply written:
+
+```csharp
+public static Expression<Func<T, bool>> AndAlso<T> (
+	this Expression<Func<T, bool>> self,
+	Expression<Func<T, bool>> expression)
+{
+	return self.Combine (expression, Expression.AndAlso);
+}
+
+public static Expression<Func<T, bool>> Not<T> (
+	this Expression<Func<T, bool>> self)
+{
+	return self.Combine (Expression.Not);
+}
+```
 
 ***
 

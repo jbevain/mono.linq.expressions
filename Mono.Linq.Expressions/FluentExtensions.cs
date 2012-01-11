@@ -5,6 +5,7 @@
 //   Jb Evain (jbevain@novell.com)
 //
 // (C) 2011 Novell, Inc. (http://www.novell.com)
+// (C) 2012 Jb Evain
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -46,11 +47,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.MakeBinary (binaryType, left, right);
 		}
 
-		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.MakeBinary (binaryType, left, right, liftToNull, method);
 		}
 
-		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right, Boolean liftToNull, MethodInfo method, LambdaExpression conversion) {
+		public static BinaryExpression MakeBinary (this ExpressionType binaryType, Expression left, Expression right, bool liftToNull, MethodInfo method, LambdaExpression conversion) {
 			return Expression.MakeBinary (binaryType, left, right, liftToNull, method, conversion);
 		}
 
@@ -58,7 +59,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Equal (left, right);
 		}
 
-		public static BinaryExpression Equal (this Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression Equal (this Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.Equal (left, right, liftToNull, method);
 		}
 
@@ -70,7 +71,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.NotEqual (left, right);
 		}
 
-		public static BinaryExpression NotEqual (this Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression NotEqual (this Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.NotEqual (left, right, liftToNull, method);
 		}
 
@@ -82,7 +83,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.GreaterThan (left, right);
 		}
 
-		public static BinaryExpression GreaterThan (this Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression GreaterThan (this Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.GreaterThan (left, right, liftToNull, method);
 		}
 
@@ -90,7 +91,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.LessThan (left, right);
 		}
 
-		public static BinaryExpression LessThan (this Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression LessThan (this Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.LessThan (left, right, liftToNull, method);
 		}
 
@@ -98,7 +99,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.GreaterThanOrEqual (left, right);
 		}
 
-		public static BinaryExpression GreaterThanOrEqual (this Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression GreaterThanOrEqual (this Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.GreaterThanOrEqual (left, right, liftToNull, method);
 		}
 
@@ -106,7 +107,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.LessThanOrEqual (left, right);
 		}
 
-		public static BinaryExpression LessThanOrEqual (this Expression left, Expression right, Boolean liftToNull, MethodInfo method) {
+		public static BinaryExpression LessThanOrEqual (this Expression left, Expression right, bool liftToNull, MethodInfo method) {
 			return Expression.LessThanOrEqual (left, right, liftToNull, method);
 		}
 
@@ -498,15 +499,15 @@ namespace Mono.Linq.Expressions {
 			return Expression.IfThenElse (test, ifTrue, ifFalse);
 		}
 
-		public static ConstantExpression Constant (this Object value) {
+		public static ConstantExpression Constant (this object value) {
 			return Expression.Constant (value);
 		}
 
-		public static ConstantExpression Constant (this Object value, Type type) {
+		public static ConstantExpression Constant (this object value, Type type) {
 			return Expression.Constant (value, type);
 		}
 
-		public static DebugInfoExpression DebugInfo (this SymbolDocumentInfo document, Int32 startLine, Int32 startColumn, Int32 endLine, Int32 endColumn) {
+		public static DebugInfoExpression DebugInfo (this SymbolDocumentInfo document, int startLine, int startColumn, int endLine, int endColumn) {
 			return Expression.DebugInfo (document, startLine, startColumn, endLine, endColumn);
 		}
 
@@ -646,7 +647,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.ArrayAccess (array, indexes);
 		}
 
-		public static IndexExpression Property (this Expression instance, String propertyName, params Expression[] arguments) {
+		public static IndexExpression Property (this Expression instance, string propertyName, params Expression[] arguments) {
 			return Expression.Property (instance, propertyName, arguments);
 		}
 
@@ -674,7 +675,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Label (target, defaultValue);
 		}
 
-		public static LabelTarget Label (this String name) {
+		public static LabelTarget Label (this string name) {
 			return Expression.Label (name);
 		}
 
@@ -682,7 +683,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Label (type);
 		}
 
-		public static LabelTarget Label (this Type type, String name) {
+		public static LabelTarget Label (this Type type, string name) {
 			return Expression.Label (type, name);
 		}
 
@@ -690,7 +691,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda<TDelegate> (body, parameters);
 		}
 
-		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, Boolean tailCall, params ParameterExpression[] parameters) {
+		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, bool tailCall, params ParameterExpression[] parameters) {
 			return Expression.Lambda<TDelegate> (body, tailCall, parameters);
 		}
 
@@ -698,15 +699,15 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda<TDelegate> (body, parameters);
 		}
 
-		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, bool tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda<TDelegate> (body, tailCall, parameters);
 		}
 
-		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, String name, IEnumerable<ParameterExpression> parameters) {
+		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, string name, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda<TDelegate> (body, name, parameters);
 		}
 
-		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, String name, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+		public static Expression<TDelegate> Lambda<TDelegate> (this Expression body, string name, bool tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda<TDelegate> (body, name, tailCall, parameters);
 		}
 
@@ -714,7 +715,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda (body, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Expression body, Boolean tailCall, params ParameterExpression[] parameters) {
+		public static LambdaExpression Lambda (this Expression body, bool tailCall, params ParameterExpression[] parameters) {
 			return Expression.Lambda (body, tailCall, parameters);
 		}
 
@@ -722,7 +723,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda (body, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Expression body, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+		public static LambdaExpression Lambda (this Expression body, bool tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (body, tailCall, parameters);
 		}
 
@@ -730,7 +731,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda (delegateType, body, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Type delegateType, Expression body, Boolean tailCall, params ParameterExpression[] parameters) {
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, bool tailCall, params ParameterExpression[] parameters) {
 			return Expression.Lambda (delegateType, body, tailCall, parameters);
 		}
 
@@ -738,23 +739,23 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda (delegateType, body, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Type delegateType, Expression body, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, bool tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (delegateType, body, tailCall, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Expression body, String name, IEnumerable<ParameterExpression> parameters) {
+		public static LambdaExpression Lambda (this Expression body, string name, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (body, name, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Expression body, String name, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+		public static LambdaExpression Lambda (this Expression body, string name, bool tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (body, name, tailCall, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Type delegateType, Expression body, String name, IEnumerable<ParameterExpression> parameters) {
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, string name, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (delegateType, body, name, parameters);
 		}
 
-		public static LambdaExpression Lambda (this Type delegateType, Expression body, String name, Boolean tailCall, IEnumerable<ParameterExpression> parameters) {
+		public static LambdaExpression Lambda (this Type delegateType, Expression body, string name, bool tailCall, IEnumerable<ParameterExpression> parameters) {
 			return Expression.Lambda (delegateType, body, name, tailCall, parameters);
 		}
 
@@ -806,19 +807,19 @@ namespace Mono.Linq.Expressions {
 			return Expression.Field (expression, field);
 		}
 
-		public static MemberExpression Field (this Expression expression, String fieldName) {
+		public static MemberExpression Field (this Expression expression, string fieldName) {
 			return Expression.Field (expression, fieldName);
 		}
 
-		public static MemberExpression Field (this Expression expression, Type type, String fieldName) {
+		public static MemberExpression Field (this Expression expression, Type type, string fieldName) {
 			return Expression.Field (expression, type, fieldName);
 		}
 
-		public static MemberExpression Property (this Expression expression, String propertyName) {
+		public static MemberExpression Property (this Expression expression, string propertyName) {
 			return Expression.Property (expression, propertyName);
 		}
 
-		public static MemberExpression Property (this Expression expression, Type type, String propertyName) {
+		public static MemberExpression Property (this Expression expression, Type type, string propertyName) {
 			return Expression.Property (expression, type, propertyName);
 		}
 
@@ -830,7 +831,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Property (expression, propertyAccessor);
 		}
 
-		public static MemberExpression PropertyOrField (this Expression expression, String propertyOrFieldName) {
+		public static MemberExpression PropertyOrField (this Expression expression, string propertyOrFieldName) {
 			return Expression.PropertyOrField (expression, propertyOrFieldName);
 		}
 
@@ -922,11 +923,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.Call (instance, method, arg0, arg1, arg2);
 		}
 
-		public static MethodCallExpression Call (this Expression instance, String methodName, Type[] typeArguments, params Expression[] arguments) {
+		public static MethodCallExpression Call (this Expression instance, string methodName, Type[] typeArguments, params Expression[] arguments) {
 			return Expression.Call (instance, methodName, typeArguments, arguments);
 		}
 
-		public static MethodCallExpression Call (this Type type, String methodName, Type[] typeArguments, params Expression[] arguments) {
+		public static MethodCallExpression Call (this Type type, string methodName, Type[] typeArguments, params Expression[] arguments) {
 			return Expression.Call (type, methodName, typeArguments, arguments);
 		}
 
@@ -990,11 +991,11 @@ namespace Mono.Linq.Expressions {
 			return Expression.Variable (type);
 		}
 
-		public static ParameterExpression Parameter (this Type type, String name) {
+		public static ParameterExpression Parameter (this Type type, string name) {
 			return Expression.Parameter (type, name);
 		}
 
-		public static ParameterExpression Variable (this Type type, String name) {
+		public static ParameterExpression Variable (this Type type, string name) {
 			return Expression.Variable (type, name);
 		}
 
@@ -1034,19 +1035,19 @@ namespace Mono.Linq.Expressions {
 			return Expression.Switch (type, switchValue, defaultBody, comparison, cases);
 		}
 
-		public static SymbolDocumentInfo SymbolDocument (this String fileName) {
+		public static SymbolDocumentInfo SymbolDocument (this string fileName) {
 			return Expression.SymbolDocument (fileName);
 		}
 
-		public static SymbolDocumentInfo SymbolDocument (this String fileName, Guid language) {
+		public static SymbolDocumentInfo SymbolDocument (this string fileName, Guid language) {
 			return Expression.SymbolDocument (fileName, language);
 		}
 
-		public static SymbolDocumentInfo SymbolDocument (this String fileName, Guid language, Guid languageVendor) {
+		public static SymbolDocumentInfo SymbolDocument (this string fileName, Guid language, Guid languageVendor) {
 			return Expression.SymbolDocument (fileName, language, languageVendor);
 		}
 
-		public static SymbolDocumentInfo SymbolDocument (this String fileName, Guid language, Guid languageVendor, Guid documentType) {
+		public static SymbolDocumentInfo SymbolDocument (this string fileName, Guid language, Guid languageVendor, Guid documentType) {
 			return Expression.SymbolDocument (fileName, language, languageVendor, documentType);
 		}
 

@@ -102,6 +102,14 @@ class FluentExtensionsGenerator {
 			return "Expression<" + type.GetGenericArguments () [0].Name + ">";
 		case "IEnumerable`1":
 			return "IEnumerable<" + type.GetGenericArguments () [0].Name + ">";
+		case "Boolean":
+			return "bool";
+		case "Object":
+			return "object";
+		case "Int32":
+			return "int";
+		case "String":
+			return "string";
 		}
 
 		return type.Name;
@@ -115,6 +123,7 @@ class FluentExtensionsGenerator {
 //   Jb Evain (jbevain@novell.com)
 //
 // (C) 2011 Novell, Inc. (http://www.novell.com)
+// (C) 2012 Jb Evain
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the

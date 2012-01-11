@@ -5,6 +5,7 @@
 //   Jb Evain (jbevain@novell.com)
 //
 // (C) 2010 Novell, Inc. (http://www.novell.com)
+// (C) 2012 Jb Evain
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -32,9 +33,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("Mono.Linq.Expressions")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Novell, Inc.")]
+[assembly: AssemblyCompany ("")]
 [assembly: AssemblyProduct ("Mono.Linq.Expressions")]
-[assembly: AssemblyCopyright ("Copyright © Novell, Inc. 2010")]
+[assembly: AssemblyCopyright ("Copyright © Jb Evain 2012")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
@@ -42,5 +43,5 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid ("7c6dad55-cc59-424e-bf21-95ba4234eb65")]
 
-[assembly: AssemblyVersion ("1.1.0.0")]
-[assembly: AssemblyFileVersion ("1.1.0.0")]
+[assembly: AssemblyVersion ("1.2.0.0")]
+[assembly: AssemblyFileVersion ("1.2.0.0")]

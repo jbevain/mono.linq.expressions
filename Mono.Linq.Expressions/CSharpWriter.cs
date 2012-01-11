@@ -849,6 +849,9 @@ namespace Mono.Linq.Expressions {
 			if (value == null)
 				return "null";
 
+			if (value.GetType ().IsEnum)
+				return GetEnumLiteral (value);
+
 			switch (Type.GetTypeCode (value.GetType ())) {
 			case TypeCode.Boolean:
 				return ((bool) value) ? "true" : "false";
@@ -861,6 +864,15 @@ namespace Mono.Linq.Expressions {
 			default:
 				return value.ToString ();
 			}
+		}
+
+		static string GetEnumLiteral (object value)
+		{
+			var type = value.GetType ();
+			if (Enum.IsDefined (type, value))
+				return type.Name + "." + Enum.GetName (type, value);
+
+			throw new NotSupportedException ();
 		}
 
 		protected override Expression VisitLabel (LabelExpression node)

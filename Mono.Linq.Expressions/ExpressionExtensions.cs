@@ -31,7 +31,7 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public static partial class Extensions {
+	public static class ExpressionExtensions {
 
 		public static bool Is (this Expression self, ExpressionType type)
 		{

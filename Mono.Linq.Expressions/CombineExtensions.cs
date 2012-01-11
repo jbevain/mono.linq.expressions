@@ -33,7 +33,7 @@ using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
 
-	public static partial class Extensions {
+	public static class CombineExtensions {
 
 		public static Expression<T> Combine<[DelegateConstraint] T> (this Expression<T> self, Func<Expression, Expression> combinator) where T : class
 		{

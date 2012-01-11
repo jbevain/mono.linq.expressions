@@ -60,7 +60,7 @@ public static class CombineExtensions {
 		Expression<T> expression,
 		Func<Expression, Expression, Expression> combinator) where T : Delegate {}
 }
-```csharp
+```
 
 > Helper to combine a fully created lambda with another into a brand new lambda.
 > This is done by rewriting and inlining the bodies in the resulting lamba.

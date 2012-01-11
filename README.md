@@ -42,7 +42,6 @@ var field = parameter.Convert (typeof (string)).Field ("Length");
 public abstract class CustomExpression {
 	public abstract Expression Accept (CustomExpressionVisitor visitor) {}
 }
-
 ```
 
 > Base class for custom expressions.

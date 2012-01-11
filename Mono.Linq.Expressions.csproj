@@ -72,7 +72,7 @@
     <Compile Include="Mono.Linq.Expressions\ForEachExpression.cs" />
     <Compile Include="Mono.Linq.Expressions\ForExpression.cs" />
     <Compile Include="Mono.Linq.Expressions\PredicateBuilder.cs" />
-    <Compile Include="Mono.Linq.Expressions\Extensions.cs" />
+    <Compile Include="Mono.Linq.Expressions\ExpressionExtensions.cs" />
     <Compile Include="Mono.Linq.Expressions\CSharp.cs" />
     <Compile Include="Mono.Linq.Expressions\CSharpWriter.cs" />
     <Compile Include="Mono.Linq.Expressions\ExpressionWriter.cs" />

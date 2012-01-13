@@ -40,7 +40,7 @@ class Program {
 				parameter.Constraints.Add (CreateConstraint ("System", "Delegate", parameter));
 				attributes.RemoveAt (i--);
 			} else if (IsEnumConstraintAttribute (attribute)) {
-				parameter.Attributes = GenericParameterAttributes.NonVariant;
+				parameter.Attributes = GenericParameterAttributes.NonVariant | GenericParameterAttributes.NotNullableValueTypeConstraint;
 				parameter.Constraints.Clear ();
 				parameter.Constraints.Add (CreateConstraint ("System", "Enum", parameter));
 				attributes.RemoveAt (i--);

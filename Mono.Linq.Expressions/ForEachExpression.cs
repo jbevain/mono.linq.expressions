@@ -154,10 +154,10 @@ namespace Mono.Linq.Expressions {
 
 			Expression variable_initializer;
 
-			if (variable.Type.IsAssignableFrom(get_current.ReturnType))
-				variable_initializer = enumerator.Property(get_current);
+			if (variable.Type.IsAssignableFrom (get_current.ReturnType))
+				variable_initializer = enumerator.Property (get_current);
 			else
-				variable_initializer = enumerator.Property(get_current).Convert(variable.Type);
+				variable_initializer = enumerator.Property (get_current).Convert (variable.Type);
 
 			Expression loop = Expression.Block (
 				new [] { variable },
@@ -195,17 +195,16 @@ namespace Mono.Linq.Expressions {
 			Type enumerator_type;
 
 			if (TryGetGenericEnumerableArgument (out item_type)) {
-				enumerable_type = typeof (IEnumerable <>).MakeGenericType (item_type);
-				enumerator_type = typeof (IEnumerator <>).MakeGenericType (item_type);
-			}
-			else {
+				enumerable_type = typeof (IEnumerable<>).MakeGenericType (item_type);
+				enumerator_type = typeof (IEnumerator<>).MakeGenericType (item_type);
+			} else {
 				enumerable_type = typeof (IEnumerable);
 				enumerator_type = typeof (IEnumerator);
 			}
 
-			move_next = typeof(IEnumerator).GetMethod("MoveNext");
-			get_current = enumerator_type.GetProperty("Current").GetGetMethod();
-			get_enumerator = enumerable.Type.GetMethod("GetEnumerator", BindingFlags.Public | BindingFlags.Instance);
+			move_next = typeof (IEnumerator).GetMethod ("MoveNext");
+			get_current = enumerator_type.GetProperty ("Current").GetGetMethod ();
+			get_enumerator = enumerable.Type.GetMethod ("GetEnumerator", BindingFlags.Public | BindingFlags.Instance);
 
 			//
 			// We want to avoid unnecessarily boxing an enumerator if it's a value type.  Look
@@ -213,17 +212,16 @@ namespace Mono.Linq.Expressions {
 			// pattern.  If we don't find one, fall back to IEnumerable[<T>].GetEnumerator().
 			//
 
-			if (get_enumerator == null || !enumerator_type.IsAssignableFrom(get_enumerator.ReturnType)) {
-				get_enumerator = enumerable_type.GetMethod("GetEnumerator");
+			if (get_enumerator == null || !enumerator_type.IsAssignableFrom (get_enumerator.ReturnType)) {
+				get_enumerator = enumerable_type.GetMethod ("GetEnumerator");
 			}
 		}
 
 		private static Expression CreateDisposeOperation (Type enumerator_type, ParameterExpression enumerator)
 		{
-			var dispose = typeof(IDisposable).GetMethod("Dispose");
-			
-			if (typeof(IDisposable).IsAssignableFrom(enumerator_type))
-			{
+			var dispose = typeof (IDisposable).GetMethod ("Dispose");
+
+			if (typeof (IDisposable).IsAssignableFrom (enumerator_type)) {
 				//
 				// We know the enumerator implements IDisposable, so skip the type check.
 				//

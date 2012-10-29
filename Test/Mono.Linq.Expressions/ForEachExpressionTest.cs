@@ -29,6 +29,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 using NUnit.Framework;
@@ -38,11 +39,38 @@ namespace Mono.Linq.Expressions {
 	[TestFixture]
 	public class ForEachExpressionTest : BaseExpressionTest {
 
+		public class Counter : IDisposable {
+
+			int count;
+			bool disposed;
+
+			public int Count {
+				get { return count; }
+			}
+
+			public bool Disposed {
+				get { return disposed; }
+			}
+
+			public void Hit () {
+				count++;
+			}
+
+			#region Implementation of IDisposable
+
+			public void Dispose () {
+				disposed = true;
+			}
+
+			#endregion
+		}
+
 		public class EnumerableCounter : IEnumerable<int>, IEnumerator<int> {
 
 			int count;
 			int current;
 			bool disposed;
+			bool disposedIncorrectly;
 
 			readonly int low;
 			readonly int high;
@@ -53,6 +81,10 @@ namespace Mono.Linq.Expressions {
 
 			public bool Disposed {
 				get { return disposed; }
+			}
+
+			public bool DisposedIncorrectly {
+				get { return disposedIncorrectly; }
 			}
 
 			int IEnumerator<int>.Current {
@@ -103,6 +135,11 @@ namespace Mono.Linq.Expressions {
 				current = -1;
 			}
 
+			public void Dispose ()
+			{
+				disposedIncorrectly = true;
+			}
+
 			void IDisposable.Dispose ()
 			{
 				disposed = true;
@@ -110,7 +147,7 @@ namespace Mono.Linq.Expressions {
 		}
 
 		[Test]
-		public void ForEach ()
+		public void ForEachEnumerable ()
 		{
 			var enumerable_counter = new EnumerableCounter (0, 10);
 
@@ -129,6 +166,29 @@ namespace Mono.Linq.Expressions {
 
 			Assert.AreEqual (10, enumerable_counter.Count);
 			Assert.IsTrue (enumerable_counter.Disposed);
+			Assert.IsFalse (enumerable_counter.DisposedIncorrectly);
+		}
+
+		[Test]
+		public void ForEachArray ()
+		{
+			var counters = Enumerable.Range (0, 3).Select (_ => new Counter()).ToArray ();
+
+			var cs = Expression.Parameter (typeof(Counter[]), "cs");
+
+			var c = Expression.Variable (typeof (Counter), "i");
+
+			var hitcounter = Expression.Lambda<Action<Counter[]>> (
+				CustomExpression.ForEach (
+					c,
+					cs,
+					Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes))),
+				cs).Compile ();
+
+			hitcounter (counters);
+
+			foreach (var counter in counters)
+				Assert.AreEqual (1, counter.Count);
 		}
 
 		[Test]
@@ -292,6 +352,322 @@ namespace Mono.Linq.Expressions {
 			hitcounter (enumerable_counter);
 
 			Assert.AreEqual (10, enumerable_counter.Count);
+		}
+
+		public class StructEnumerableCounterImplicitMembers : IEnumerable<Counter>
+		{
+			private readonly Counter [] counters;
+
+			public StructEnumerableCounterImplicitMembers (Counter [] counters)
+			{
+				this.counters = counters;
+			}
+
+			public Counter [] Counters
+			{
+				get { return counters; }
+			}
+
+			public StructEnumerableCounterImplicitMembers.Enumerator GetEnumerator ()
+			{
+				return new Enumerator (this);
+			}
+
+			IEnumerator<Counter> IEnumerable<Counter>.GetEnumerator ()
+			{
+				return GetEnumerator ();
+			}
+
+			IEnumerator IEnumerable.GetEnumerator ()
+			{
+				return GetEnumerator ();
+			}
+
+			public struct Enumerator : IEnumerator<Counter>
+			{
+				private readonly StructEnumerableCounterImplicitMembers owner;
+
+				private int current;
+
+				public Enumerator (StructEnumerableCounterImplicitMembers owner)
+					: this ()
+				{
+					this.owner = owner;
+					this.current = -1;
+				}
+
+				public int Count
+				{
+					get { return owner.counters.Length; }
+				}
+
+				public Counter Current
+				{
+					get { return owner.counters [current]; }
+				}
+
+				object IEnumerator.Current
+				{
+					get { return Current; }
+				}
+
+				public void Hit ()
+				{
+					Current.Hit ();
+				}
+
+				public bool MoveNext ()
+				{
+					if (++current == owner.counters.Length)
+						return false;
+
+					return true;
+				}
+
+				public void Reset ()
+				{
+					current = -1;
+				}
+
+				public void Dispose ()
+				{
+					foreach (var counter in owner.counters)
+						counter.Dispose ();
+				}
+			}
+		}
+
+		[Test]
+		public void ForEachStructEnumeratorImplicitMembers ()
+		{
+			var counters = new [] { new Counter (), new Counter (), new Counter () };
+			var enumerable_counter = new StructEnumerableCounterImplicitMembers (counters);
+
+			var ec = Expression.Parameter (typeof (StructEnumerableCounterImplicitMembers), "ec");
+			var item = Expression.Variable (typeof (Counter), "c");
+
+			var hitcounter = Expression.Lambda<Action<StructEnumerableCounterImplicitMembers>> (
+				CustomExpression.ForEach (
+					item,
+					ec,
+					Expression.Call (item, "Hit", Type.EmptyTypes)),
+				ec).Compile ();
+
+			hitcounter (enumerable_counter);
+
+			foreach (var counter in counters) {
+				Assert.AreEqual (1, counter.Count);
+				Assert.IsTrue (counter.Disposed);
+			}
+		}
+
+		public class StructEnumerableCounterExplicitMembers : IEnumerable<Counter>
+		{
+			private readonly Counter [] counters;
+
+			public StructEnumerableCounterExplicitMembers (Counter [] counters)
+			{
+				this.counters = counters;
+			}
+
+			public Counter [] Counters
+			{
+				get { return counters; }
+			}
+
+			public StructEnumerableCounterExplicitMembers.Enumerator GetEnumerator ()
+			{
+				return new Enumerator (this);
+			}
+
+			IEnumerator<Counter> IEnumerable<Counter>.GetEnumerator ()
+			{
+				return GetEnumerator ();
+			}
+
+			IEnumerator IEnumerable.GetEnumerator ()
+			{
+				return GetEnumerator ();
+			}
+
+			public struct Enumerator : IEnumerator<Counter>
+			{
+				private readonly StructEnumerableCounterExplicitMembers owner;
+
+				private int current;
+
+				public Enumerator (StructEnumerableCounterExplicitMembers owner)
+					: this ()
+				{
+					this.owner = owner;
+					this.current = -1;
+				}
+
+				public int Count
+				{
+					get { return owner.counters.Length; }
+				}
+
+				Counter IEnumerator<Counter>.Current
+				{
+					get { return owner.counters [current]; }
+				}
+
+				object IEnumerator.Current
+				{
+					get { return owner.counters [current]; }
+				}
+
+				public void Hit ()
+				{
+					owner.counters [current].Hit ();
+				}
+
+				bool IEnumerator.MoveNext ()
+				{
+					if (++current == owner.counters.Length)
+						return false;
+
+					return true;
+				}
+
+				void IEnumerator.Reset ()
+				{
+					current = -1;
+				}
+
+				void IDisposable.Dispose ()
+				{
+					foreach (var counter in owner.counters)
+						counter.Dispose ();
+				}
+			}
+		}
+
+		[Test]
+		public void ForEachStructEnumeratorExplicitMembers ()
+		{
+			var counters = new [] { new Counter (), new Counter (), new Counter () };
+			var enumerable_counter = new StructEnumerableCounterExplicitMembers (counters);
+
+			var ec = Expression.Parameter (typeof (StructEnumerableCounterExplicitMembers), "ec");
+			var item = Expression.Variable (typeof (Counter), "c");
+
+			var hitcounter = Expression.Lambda<Action<StructEnumerableCounterExplicitMembers>> (
+				CustomExpression.ForEach (
+					item,
+					ec,
+					Expression.Call (item, "Hit", Type.EmptyTypes)),
+				ec).Compile ();
+
+			hitcounter (enumerable_counter);
+
+			foreach (var counter in counters) {
+				Assert.AreEqual (1, counter.Count);
+				Assert.IsTrue (counter.Disposed);
+			}
+		}
+
+		public class NonGenericStructEnumerableCounter : IEnumerable
+		{
+			private readonly Counter [] counters;
+
+			public NonGenericStructEnumerableCounter (Counter [] counters)
+			{
+				this.counters = counters;
+			}
+
+			public Counter [] Counters
+			{
+				get { return counters; }
+			}
+
+			public NonGenericStructEnumerableCounter.Enumerator GetEnumerator ()
+			{
+				return new Enumerator (this);
+			}
+
+			IEnumerator IEnumerable.GetEnumerator ()
+			{
+				return GetEnumerator ();
+			}
+
+			public struct Enumerator : IEnumerator
+			{
+				private readonly NonGenericStructEnumerableCounter owner;
+
+				private int current;
+
+				public Enumerator (NonGenericStructEnumerableCounter owner)
+					: this ()
+				{
+					this.owner = owner;
+					this.current = -1;
+				}
+
+				public int Count
+				{
+					get { return owner.counters.Length; }
+				}
+
+				public Counter Current
+				{
+					get { return owner.counters [current]; }
+				}
+
+				object IEnumerator.Current
+				{
+					get { return Current; }
+				}
+
+				public void Hit ()
+				{
+					Current.Hit ();
+				}
+
+				public bool MoveNext ()
+				{
+					if (++current == owner.counters.Length)
+						return false;
+
+					return true;
+				}
+
+				void IEnumerator.Reset ()
+				{
+					current = -1;
+				}
+
+				public void Dispose ()
+				{
+					foreach (var counter in owner.counters)
+						counter.Dispose ();
+				}
+			}
+		}
+
+		[Test]
+		public void ForEachNonGenericStructEnumerator ()
+		{
+			var counters = new [] { new Counter (), new Counter (), new Counter () };
+			var enumerable_counter = new NonGenericStructEnumerableCounter (counters);
+
+			var ec = Expression.Parameter (typeof (NonGenericStructEnumerableCounter), "ec");
+			var item = Expression.Variable (typeof (Counter), "c");
+
+			var hitcounter = Expression.Lambda<Action<NonGenericStructEnumerableCounter>> (
+				CustomExpression.ForEach (
+					item,
+					ec,
+					Expression.Call (item, "Hit", Type.EmptyTypes)),
+				ec).Compile ();
+
+			hitcounter (enumerable_counter);
+
+			foreach (var counter in counters) {
+				Assert.AreEqual (1, counter.Count);
+				Assert.IsFalse (counter.Disposed);
+			}
 		}
 	}
 }

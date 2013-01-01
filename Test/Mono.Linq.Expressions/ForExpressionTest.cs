@@ -75,6 +75,30 @@ namespace Mono.Linq.Expressions {
 		}
 
 		[Test]
+		public void Never ()
+		{
+			var counter = new Counter ();
+
+			var c = Expression.Parameter (typeof (Counter), "c");
+			var l = Expression.Parameter (typeof (int), "l");
+
+			var i = Expression.Variable (typeof (int), "i");
+
+			var hitcounter = Expression.Lambda<Action<Counter, int>> (
+				CustomExpression.For (
+					i,
+					Expression.Constant (0),
+					Expression.LessThan (i, l),
+					Expression.PreIncrementAssign (i),
+					Expression.Call (c, typeof (Counter).GetMethod ("Hit", Type.EmptyTypes))),
+				c, l).Compile ();
+
+			hitcounter (counter, 0);
+
+			Assert.AreEqual (0, counter.Count);
+		}
+
+		[Test]
 		public void ForBreak ()
 		{
 			var counter = new Counter ();

@@ -116,12 +116,12 @@ namespace Mono.Linq.Expressions {
 				variable.Assign (initializer),
 				Expression.Loop (
 					Expression.Block (
+						Expression.IfThen (
+							Expression.IsFalse (test),
+							Expression.Break (inner_loop_break)),
 						body,
 						Expression.Label (@continue),
-						step,
-						test.Condition (
-							Expression.Continue (inner_loop_continue),
-							Expression.Break (inner_loop_break))),
+						step),
 					inner_loop_break,
 					inner_loop_continue),
 				Expression.Label (@break));

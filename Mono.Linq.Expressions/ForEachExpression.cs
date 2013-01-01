@@ -30,6 +30,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Mono.Linq.Expressions {
 
@@ -94,57 +95,165 @@ namespace Mono.Linq.Expressions {
 
 		public override Expression Reduce ()
 		{
-			Type argument;
-			Type enumerable_type;
-			Type enumerator_type;
-			if (!TryGetGenericEnumerableArgument (out argument)) {
-				enumerator_type = typeof (IEnumerator);
-				enumerable_type = typeof (IEnumerable);
-			} else {
-				enumerator_type = typeof (IEnumerator<>).MakeGenericType (argument);
-				enumerable_type = typeof (IEnumerable<>).MakeGenericType (argument);
-			}
+			// Avoid allocating an unnecessary enumerator for arrays.
+			if (enumerable.Type.IsArray)
+				return ReduceForArray ();
+
+			return ReduceForEnumerable ();
+		}
+
+		private Expression ReduceForArray ()
+		{
+			var inner_loop_break = Expression.Label ("inner_loop_break");
+			var inner_loop_continue = Expression.Label ("inner_loop_continue");
+
+			var @continue = continue_target ?? Expression.Label ("continue");
+			var @break = break_target ?? Expression.Label ("break");
+
+			var index = Expression.Variable (typeof (int), "i");
+
+			return Expression.Block (
+				new [] { index, variable },
+				index.Assign (Expression.Constant (0)),
+				Expression.Loop (
+					Expression.Block (
+						Expression.IfThen (
+							Expression.IsFalse (
+								Expression.LessThan (
+									index,
+									Expression.ArrayLength (enumerable))),
+							Expression.Break (inner_loop_break)),
+						variable.Assign (
+							Expression.ArrayIndex (
+								enumerable,
+								index).Convert (variable.Type)),
+						body,
+						Expression.Label (@continue),
+						Expression.PreIncrementAssign (index)),
+					inner_loop_break,
+					inner_loop_continue),
+				Expression.Label (@break));
+		}
+
+		private Expression ReduceForEnumerable ()
+		{
+			MethodInfo get_enumerator;
+			MethodInfo move_next;
+			MethodInfo get_current;
+
+			ResolveEnumerationMembers (out get_enumerator, out move_next, out get_current);
+
+			var enumerator_type = get_enumerator.ReturnType;
 
 			var enumerator = Expression.Variable (enumerator_type);
-			var disposable = Expression.Variable (typeof (IDisposable));
 
 			var inner_loop_continue = Expression.Label ("inner_loop_continue");
 			var inner_loop_break = Expression.Label ("inner_loop_break");
 			var @continue = continue_target ?? Expression.Label ("continue");
 			var @break = break_target ?? Expression.Label ("break");
-			var end_finally = Expression.Label ("end");
+
+			Expression variable_initializer;
+
+			if (variable.Type.IsAssignableFrom (get_current.ReturnType))
+				variable_initializer = enumerator.Property (get_current);
+			else
+				variable_initializer = enumerator.Property (get_current).Convert (variable.Type);
+
+			Expression loop = Expression.Block (
+				new [] { variable },
+				Expression.Goto (@continue),
+				Expression.Loop (
+					Expression.Block (
+						variable.Assign (variable_initializer),
+						body,
+						Expression.Label (@continue),
+						Expression.Condition (
+							Expression.Call (enumerator, move_next),
+							Expression.Goto (inner_loop_continue),
+							Expression.Goto (inner_loop_break))),
+					inner_loop_break,
+					inner_loop_continue),
+				Expression.Label (@break));
+
+			var dispose = CreateDisposeOperation (enumerator_type, enumerator);
 
 			return Expression.Block (
 				new [] { enumerator },
-				enumerator.Assign (Expression.Call (enumerable.Convert (enumerable_type), enumerable_type.GetMethod ("GetEnumerator"))),
-				Expression.TryFinally (
-					Expression.Block (
-						new[] { variable },
-						Expression.Goto (@continue),
-						Expression.Loop (
-							Expression.Block (
-								variable.Assign (enumerator.Property ("Current").Convert (variable.Type)),
-									body,
-									Expression.Label (@continue),
-									Expression.Condition (
-										Expression.Call (
-											enumerator,
-											typeof (IEnumerator).GetMethod ("MoveNext")),
-										Expression.Goto (inner_loop_continue),
-										Expression.Goto (inner_loop_break))),
-							inner_loop_break,
-							inner_loop_continue),
-						Expression.Label (@break)),
-					Expression.Block (
-						new [] { disposable },
-						disposable.Assign (enumerator.TypeAs (typeof (IDisposable))),
-						disposable.NotEqual (Expression.Constant (null)).Condition (
-							Expression.Call (disposable, typeof (IDisposable).GetMethod ("Dispose", Type.EmptyTypes)),
-							Expression.Goto (end_finally)),
-						Expression.Label (end_finally))));
+				enumerator.Assign (Expression.Call (enumerable, get_enumerator)),
+				dispose != null
+					? Expression.TryFinally (loop, dispose)
+					: loop);
 		}
 
-		bool TryGetGenericEnumerableArgument (out Type argument)
+		private void ResolveEnumerationMembers (
+			out MethodInfo get_enumerator,
+			out MethodInfo move_next,
+			out MethodInfo get_current)
+		{
+			Type item_type;
+			Type enumerable_type;
+			Type enumerator_type;
+
+			if (TryGetGenericEnumerableArgument (out item_type)) {
+				enumerable_type = typeof (IEnumerable<>).MakeGenericType (item_type);
+				enumerator_type = typeof (IEnumerator<>).MakeGenericType (item_type);
+			} else {
+				enumerable_type = typeof (IEnumerable);
+				enumerator_type = typeof (IEnumerator);
+			}
+
+			move_next = typeof (IEnumerator).GetMethod ("MoveNext");
+			get_current = enumerator_type.GetProperty ("Current").GetGetMethod ();
+			get_enumerator = enumerable.Type.GetMethod ("GetEnumerator", BindingFlags.Public | BindingFlags.Instance);
+
+			//
+			// We want to avoid unnecessarily boxing an enumerator if it's a value type.  Look
+			// for a GetEnumerator() method that conforms to the rules of the C# 'foreach'
+			// pattern.  If we don't find one, fall back to IEnumerable[<T>].GetEnumerator().
+			//
+
+			if (get_enumerator == null || !enumerator_type.IsAssignableFrom (get_enumerator.ReturnType)) {
+				get_enumerator = enumerable_type.GetMethod ("GetEnumerator");
+			}
+		}
+
+		private static Expression CreateDisposeOperation (Type enumerator_type, ParameterExpression enumerator)
+		{
+			var dispose = typeof (IDisposable).GetMethod ("Dispose");
+
+			if (typeof (IDisposable).IsAssignableFrom (enumerator_type)) {
+				//
+				// We know the enumerator implements IDisposable, so skip the type check.
+				//
+				return Expression.Call (enumerator, dispose);
+			}
+
+			if (enumerator_type.IsValueType) {
+				//
+				// The enumerator is a value type and doesn't implement IDisposable; we needn't
+				// bother with a check at all.
+				//
+				return null;
+			}
+
+			//
+			// We don't know whether the enumerator implements IDisposable or not.  Emit a
+			// runtime check.
+			//
+
+			var disposable = Expression.Variable (typeof (IDisposable));
+
+			return Expression.Block (
+				new [] { disposable },
+				disposable.Assign (enumerator.TypeAs (typeof (IDisposable))),
+				disposable.ReferenceNotEqual (Expression.Constant (null)).IfThen (
+					Expression.Call (
+						disposable,
+						"Dispose",
+						Type.EmptyTypes)));
+		}
+
+		private bool TryGetGenericEnumerableArgument (out Type argument)
 		{
 			argument = null;
 

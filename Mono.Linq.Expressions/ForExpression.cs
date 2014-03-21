@@ -135,8 +135,8 @@ namespace Mono.Linq.Expressions {
 				visitor.Visit (test),
 				visitor.Visit (step),
 				visitor.Visit (body),
-				continue_target,
-				break_target);
+				break_target,
+                continue_target);
 		}
 
 		public override Expression Accept (CustomExpressionVisitor visitor)

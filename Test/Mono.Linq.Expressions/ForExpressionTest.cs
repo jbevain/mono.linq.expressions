@@ -160,41 +160,41 @@ namespace Mono.Linq.Expressions {
 			Assert.AreEqual (5, counter.Count);
 		}
 
-        public class ReplaceNullByDefaultVisitor : ExpressionVisitor
-        {
-            protected override Expression VisitConstant(ConstantExpression node)
-            {
-                if (node.Value == null) return Expression.Default(node.Type);
-                return base.VisitConstant(node);
-            }
-        }
+		public class ReplaceNullByDefaultVisitor : ExpressionVisitor
+		{
+			protected override Expression VisitConstant(ConstantExpression node)
+			{
+				if (node.Value == null) return Expression.Default (node.Type);
+				return base.VisitConstant (node);
+			}
+		}
 
-        [Test]
-        public void ForVisit()
-        {
+		[Test]
+		public void ForVisit()
+		{
 			var i = Expression.Variable (typeof (int), "i");
 			var for_break = Expression.Label ("for_break");
 			var for_continue = Expression.Label ("for_continue");
 
-            var forExpression = CustomExpression.For (
-                i,
-                Expression.Constant (0),
+			var forExpression = CustomExpression.For (
+				i,
+				Expression.Constant (0),
 				Expression.LessThan (i, Expression.Constant (1)),
 				Expression.PreIncrementAssign (i),
-                Expression.Constant(null),
-                for_break,
-                for_continue);
-            var visitedForExpression = (ForExpression)(new ReplaceNullByDefaultVisitor ().Visit (forExpression));
+				Expression.Constant(null),
+				for_break,
+				for_continue);
+				var visitedForExpression = (ForExpression)(new ReplaceNullByDefaultVisitor ().Visit (forExpression));
 
-            Assert.AreNotEqual (forExpression, visitedForExpression);
+				Assert.AreNotEqual (forExpression, visitedForExpression);
 
-            Assert.AreEqual (forExpression.Variable, visitedForExpression.Variable);
-            Assert.AreEqual (forExpression.Initializer, visitedForExpression.Initializer);
-            Assert.AreEqual (forExpression.Test, visitedForExpression.Test);
-            Assert.AreEqual (forExpression.Step, visitedForExpression.Step);
-            Assert.AreEqual (ExpressionType.Default, visitedForExpression.Body.NodeType);
-            Assert.AreEqual (forExpression.BreakTarget, visitedForExpression.BreakTarget);
-            Assert.AreEqual (forExpression.ContinueTarget, visitedForExpression.ContinueTarget);
-        }
+				Assert.AreEqual (forExpression.Variable, visitedForExpression.Variable);
+				Assert.AreEqual (forExpression.Initializer, visitedForExpression.Initializer);
+				Assert.AreEqual (forExpression.Test, visitedForExpression.Test);
+				Assert.AreEqual (forExpression.Step, visitedForExpression.Step);
+				Assert.AreEqual (ExpressionType.Default, visitedForExpression.Body.NodeType);
+				Assert.AreEqual (forExpression.BreakTarget, visitedForExpression.BreakTarget);
+				Assert.AreEqual (forExpression.ContinueTarget, visitedForExpression.ContinueTarget);
+		}
 	}
 }

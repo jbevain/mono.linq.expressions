@@ -184,17 +184,17 @@ namespace Mono.Linq.Expressions {
 				Expression.Constant(null),
 				for_break,
 				for_continue);
-				var visitedForExpression = (ForExpression)(new ReplaceNullByDefaultVisitor ().Visit (forExpression));
+			var visitedForExpression = (ForExpression)(new ReplaceNullByDefaultVisitor ().Visit (forExpression));
 
-				Assert.AreNotEqual (forExpression, visitedForExpression);
+			Assert.AreNotEqual (forExpression, visitedForExpression);
 
-				Assert.AreEqual (forExpression.Variable, visitedForExpression.Variable);
-				Assert.AreEqual (forExpression.Initializer, visitedForExpression.Initializer);
-				Assert.AreEqual (forExpression.Test, visitedForExpression.Test);
-				Assert.AreEqual (forExpression.Step, visitedForExpression.Step);
-				Assert.AreEqual (ExpressionType.Default, visitedForExpression.Body.NodeType);
-				Assert.AreEqual (forExpression.BreakTarget, visitedForExpression.BreakTarget);
-				Assert.AreEqual (forExpression.ContinueTarget, visitedForExpression.ContinueTarget);
+			Assert.AreEqual (forExpression.Variable, visitedForExpression.Variable);
+			Assert.AreEqual (forExpression.Initializer, visitedForExpression.Initializer);
+			Assert.AreEqual (forExpression.Test, visitedForExpression.Test);
+			Assert.AreEqual (forExpression.Step, visitedForExpression.Step);
+			Assert.AreEqual (ExpressionType.Default, visitedForExpression.Body.NodeType);
+			Assert.AreEqual (forExpression.BreakTarget, visitedForExpression.BreakTarget);
+			Assert.AreEqual (forExpression.ContinueTarget, visitedForExpression.ContinueTarget);
 		}
 	}
 }

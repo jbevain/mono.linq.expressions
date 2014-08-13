@@ -90,7 +90,7 @@ namespace Mono.Linq.Expressions {
 			if (this.variable == variable && this.enumerable == enumerable && this.body == body && break_target == breakTarget && continue_target == continueTarget)
 				return this;
 
-			return CustomExpression.ForEach (variable, enumerable, body, continueTarget, breakTarget);
+			return CustomExpression.ForEach (variable, enumerable, body, breakTarget, continueTarget);
 		}
 
 		public override Expression Reduce ()

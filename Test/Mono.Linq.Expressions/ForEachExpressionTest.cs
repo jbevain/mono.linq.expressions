@@ -220,6 +220,41 @@ namespace Mono.Linq.Expressions {
 		}
 
 		[Test]
+		public void ForEachBreakAfterUpdate()
+		{
+			var enumerable_counter = new EnumerableCounter(0, 100);
+
+			var ec = Expression.Parameter(typeof(EnumerableCounter), "ec");
+
+			var item = Expression.Variable(typeof(int), "i");
+			var foreach_break = Expression.Label("foreach_break");
+			var foreach_continue = Expression.Label("foreach_continue");
+			var foreach_body = Expression.Block(
+						Expression.Call(ec, typeof(EnumerableCounter).GetMethod("Hit", Type.EmptyTypes)),
+						Expression.IfThen(
+						Expression.GreaterThanOrEqual(item, Expression.Constant(10)),
+							Expression.Goto(foreach_break)
+							));
+
+			var foreach_expr = CustomExpression.ForEach(
+					item,
+					ec,
+					foreach_body,
+					foreach_break,
+					foreach_continue);
+
+			foreach_expr = foreach_expr.Update(item, ec, foreach_body, foreach_break, null);
+			var hitcounter = Expression.Lambda<Action<EnumerableCounter>>(
+				foreach_expr,
+				ec).Compile();
+
+			hitcounter(enumerable_counter);
+
+			Assert.AreEqual(10, enumerable_counter.Count);
+			Assert.IsTrue(enumerable_counter.Disposed);
+		}
+
+		[Test]
 		public void ForEachContinue ()
 		{
 			var enumerable_counter = new EnumerableCounter (0, 10);

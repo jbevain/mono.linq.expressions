@@ -26,6 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
@@ -48,6 +49,144 @@ namespace Mono.Linq.Expressions {
 		{
 			Visit (expression);
 		}
+
+        public virtual void Write(ExpressionType expressionType)
+        {
+            WriteSpace();
+            switch (expressionType)
+            {
+                case ExpressionType.Add:
+                    Write("+");
+                    break;
+                case ExpressionType.AddChecked:
+                    Write("+");
+                    break;
+                case ExpressionType.And:
+                    Write("&");
+                    break;
+                case ExpressionType.AndAlso:
+                    Write("&&");
+                    break;
+                case ExpressionType.Coalesce:
+                    Write("??");
+                    break;
+                case ExpressionType.Divide:
+                    Write("/");
+                    break;
+                case ExpressionType.Equal:
+                    Write("==");
+                    break;
+                case ExpressionType.ExclusiveOr:
+                    Write("^");
+                    break;
+                case ExpressionType.GreaterThan:
+                    Write(">");
+                    break;
+                case ExpressionType.GreaterThanOrEqual:
+                    Write(">=");
+                    break;
+                case ExpressionType.LeftShift:
+                    Write("<<");
+                    break;
+                case ExpressionType.LessThan:
+                    Write("<");
+                    break;
+                case ExpressionType.LessThanOrEqual:
+                    Write("<=");
+                    break;
+                case ExpressionType.Modulo:
+                    Write("%");
+                    break;
+                case ExpressionType.Multiply:
+                    Write("*");
+                    break;
+                case ExpressionType.MultiplyChecked:
+                    Write("*");
+                    break;
+                case ExpressionType.Negate:
+                    Write("-");
+                    break;
+                case ExpressionType.UnaryPlus:
+                    Write("+");
+                    break;
+                case ExpressionType.NegateChecked:
+                    Write("-");
+                    break;
+                case ExpressionType.Not:
+                    Write("!");
+                    break;
+                case ExpressionType.NotEqual:
+                    Write("!=");
+                    break;
+                case ExpressionType.Or:
+                    Write("|");
+                    break;
+                case ExpressionType.OrElse:
+                    Write("||");
+                    break;
+                case ExpressionType.RightShift:
+                    Write(">>");
+                    break;
+                case ExpressionType.Subtract:
+                    Write("-");
+                    break;
+                case ExpressionType.SubtractChecked:
+                    Write("-");
+                    break;
+                case ExpressionType.Assign:
+                    Write("=");
+                    break;
+                case ExpressionType.Decrement:
+                    Write("--");
+                    break;
+                case ExpressionType.Increment:
+                    Write("++");
+                    break;
+                case ExpressionType.AddAssign:
+                    Write("+=");
+                    break;
+                case ExpressionType.AndAssign:
+                    Write("&=");
+                    break;
+                case ExpressionType.DivideAssign:
+                    Write("/=");
+                    break;
+                case ExpressionType.ExclusiveOrAssign:
+                    Write("^=");
+                    break;
+                case ExpressionType.LeftShiftAssign:
+                    Write("<<=");
+                    break;
+                case ExpressionType.ModuloAssign:
+                    Write("%=");
+                    break;
+                case ExpressionType.MultiplyAssign:
+                    Write("*=");
+                    break;
+                case ExpressionType.OrAssign:
+                    Write("|=");
+                    break;
+                case ExpressionType.RightShiftAssign:
+                    Write(">>=");
+                    break;
+                case ExpressionType.SubtractAssign:
+                    Write("-=");
+                    break;
+                case ExpressionType.AddAssignChecked:
+                    Write("+=");
+                    break;
+                case ExpressionType.MultiplyAssignChecked:
+                    Write("*=");
+                    break;
+                case ExpressionType.SubtractAssignChecked:
+                    Write("-=");
+                    break;
+                case ExpressionType.OnesComplement:
+                    Write("~");
+                    break;
+            }
+            WriteSpace();
+        }
 
 		public virtual void Write (ElementInit initializer)
 		{

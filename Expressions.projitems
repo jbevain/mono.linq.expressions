@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{B0E0CA1A-3327-4A4E-910D-0B2B9EA7A61E}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Expressions</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\CombineExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\CSharp.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\CSharpWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\CustomExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\CustomExpressionVisitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\DelegateConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\DoWhileExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\ExpressionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\ExpressionWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\FluentExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\ForEachExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\ForExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\IExpressionWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\IFormatter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\PredicateBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\TextFormatter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\UsingExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mono.Linq.Expressions\WhileExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+</Project>

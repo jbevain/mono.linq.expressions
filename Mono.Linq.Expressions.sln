@@ -1,11 +1,15 @@
 
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Expressions", "Expressions.shproj", "{B0E0CA1A-3327-4A4E-910D-0B2B9EA7A61E}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions", "Mono.Linq.Expressions.csproj", "{0C001D50-4176-45AE-BDC8-BA626508B0CC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbg", "dbg\dbg.csproj", "{A1939E56-E2B2-44CF-8B29-347E7EE459E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions.Tests", "Test\Mono.Linq.Expressions.Tests.csproj", "{4F200EA1-EFDA-48BF-BAAA-FFD9DE9BCD8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions-Android", "Mono.Linq.Expressions-Android\Mono.Linq.Expressions-Android.csproj", "{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +51,18 @@ Global
 		{4F200EA1-EFDA-48BF-BAAA-FFD9DE9BCD8F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4F200EA1-EFDA-48BF-BAAA-FFD9DE9BCD8F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4F200EA1-EFDA-48BF-BAAA-FFD9DE9BCD8F}.Release|x86.ActiveCfg = Release|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Debug|x86.Build.0 = Debug|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Release|x86.ActiveCfg = Release|Any CPU
+		{9ECA2816-41D2-4796-8CA2-758EDCFB5C68}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

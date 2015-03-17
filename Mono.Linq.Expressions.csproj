@@ -61,27 +61,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mono.Linq.Expressions\CombineExtensions.cs" />
-    <Compile Include="Mono.Linq.Expressions\DoWhileExpression.cs" />
-    <Compile Include="Mono.Linq.Expressions\FluentExtensions.cs" />
-    <Compile Include="Mono.Linq.Expressions\UsingExpression.cs" />
-    <Compile Include="Mono.Linq.Expressions\WhileExpression.cs" />
-    <Compile Include="Mono.Linq.Expressions\CustomExpressionVisitor.cs" />
-    <Compile Include="Mono.Linq.Expressions\CustomExpression.cs" />
-    <Compile Include="Mono.Linq.Expressions\ForEachExpression.cs" />
-    <Compile Include="Mono.Linq.Expressions\ForExpression.cs" />
-    <Compile Include="Mono.Linq.Expressions\PredicateBuilder.cs" />
-    <Compile Include="Mono.Linq.Expressions\ExpressionExtensions.cs" />
-    <Compile Include="Mono.Linq.Expressions\CSharp.cs" />
-    <Compile Include="Mono.Linq.Expressions\CSharpWriter.cs" />
-    <Compile Include="Mono.Linq.Expressions\ExpressionWriter.cs" />
-    <Compile Include="Mono.Linq.Expressions\IExpressionWriter.cs" />
-    <Compile Include="Mono.Linq.Expressions\DelegateConverter.cs" />
-    <Compile Include="Mono.Linq.Expressions\IFormatter.cs" />
-    <Compile Include="Mono.Linq.Expressions\TextFormatter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="mono.snk" />
   </ItemGroup>
   <ItemGroup>
@@ -104,6 +83,7 @@
   <ItemGroup>
     <Content Include="nodes.txt" />
   </ItemGroup>
+  <Import Project="Expressions.projitems" Label="Shared" Condition="Exists('Expressions.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Exec Command="&quot;$(MSBuildProjectPath)tools\patch-constraints.exe&quot; &quot;$(MSBuildProjectPath)@(MainAssembly)&quot; &quot;$(MSBuildProjectPath)$(AssemblyOriginatorKeyFile)&quot;" />

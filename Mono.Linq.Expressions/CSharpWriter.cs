@@ -1132,7 +1132,7 @@ namespace Mono.Linq.Expressions {
 		{
 			Visit (Expression.Call (
 				node.Expression,
-				typeof (object).GetMethod ("GetType", Type.EmptyTypes)));
+				typeof (object).GetMethod ("GetType", new Type [0])));
 
 			WriteSpace ();
 			WriteToken ("==");

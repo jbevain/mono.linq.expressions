@@ -250,7 +250,7 @@ namespace Mono.Linq.Expressions {
 					Expression.Call (
 						disposable,
 						"Dispose",
-						Type.EmptyTypes)));
+						new Type [0])));
 		}
 
 		private bool TryGetGenericEnumerableArgument (out Type argument)

@@ -960,7 +960,7 @@ namespace Mono.Linq.Expressions {
 		{
 			WriteKeyword ("new");
 			WriteSpace ();
-			VisitType (node.Constructor.DeclaringType);
+			VisitType (node.Constructor == null ? node.Type : node.Constructor.DeclaringType);
 			VisitArguments (node.Arguments);
 
 			return node;

@@ -537,6 +537,21 @@ int (int[] array)
 		}
 
 		[Test, MethodImpl (MethodImplOptions.NoInlining)]
+		public void NewStruct ()
+		{
+			var lambda = Expression.Lambda<Func<int>> (
+				Expression.New (
+					typeof (int)));
+
+			AssertExpression (@"
+int ()
+{
+	return new int();
+}
+", lambda);
+		}
+
+		[Test, MethodImpl (MethodImplOptions.NoInlining)]
 		public void NewArrayInit ()
 		{
 			var lambda = Expression.Lambda<Func<string []>> (

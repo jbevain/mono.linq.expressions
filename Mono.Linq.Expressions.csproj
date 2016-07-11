@@ -107,7 +107,5 @@
     <Content Include="nodes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Target Name="AfterBuild" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Exec Command="&quot;$(MSBuildProjectPath)tools\patch-constraints.exe&quot; &quot;$(MSBuildProjectPath)@(MainAssembly)&quot; &quot;$(MSBuildProjectPath)$(AssemblyOriginatorKeyFile)&quot;" />
-  </Target>
+  <Import Project="$(MSBuildThisFileDirectory)Mono.Linq.Expressions.targets" />
 </Project>

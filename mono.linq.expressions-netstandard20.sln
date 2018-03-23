@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions-netstandard20", "Mono.Linq.Expressions-netstandard20.csproj", "{47E0FBCF-E3C3-4D9D-BAA1-B7496F58EED3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Linq.Expressions.Tests-netcore20", "Test\Mono.Linq.Expressions.Tests-netcore20.csproj", "{2BD6E358-07AE-45FB-A1CB-ED22F376A493}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{47E0FBCF-E3C3-4D9D-BAA1-B7496F58EED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47E0FBCF-E3C3-4D9D-BAA1-B7496F58EED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47E0FBCF-E3C3-4D9D-BAA1-B7496F58EED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47E0FBCF-E3C3-4D9D-BAA1-B7496F58EED3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BD6E358-07AE-45FB-A1CB-ED22F376A493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BD6E358-07AE-45FB-A1CB-ED22F376A493}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BD6E358-07AE-45FB-A1CB-ED22F376A493}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BD6E358-07AE-45FB-A1CB-ED22F376A493}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

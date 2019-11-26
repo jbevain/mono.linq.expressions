@@ -35,7 +35,7 @@ namespace Mono.Linq.Expressions {
 
 	public static class CombineExtensions {
 
-		public static Expression<T> Combine<[DelegateConstraint] T> (this Expression<T> self, Func<Expression, Expression> combinator) where T : class
+		public static Expression<T> Combine<T> (this Expression<T> self, Func<Expression, Expression> combinator) where T : Delegate
 		{
 			if (self == null)
 				throw new ArgumentNullException ("self");
@@ -47,7 +47,7 @@ namespace Mono.Linq.Expressions {
 			return Expression.Lambda<T> (combinator (RewriteBody (self, parameters)), parameters);
 		}
 
-		public static Expression<T> Combine<[DelegateConstraint] T> (this Expression<T> self, Expression<T> expression, Func<Expression, Expression, Expression> combinator) where T : class
+		public static Expression<T> Combine<T> (this Expression<T> self, Expression<T> expression, Func<Expression, Expression, Expression> combinator) where T : Delegate
 		{
 			if (self == null)
 				throw new ArgumentNullException ("self");

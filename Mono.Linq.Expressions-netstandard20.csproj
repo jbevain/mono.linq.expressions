@@ -1,8 +1,18 @@
-## Mono.Linq.Expressions
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.3.0.0</AssemblyFileVersion>
+    <PackageVersion>1.3.0.0</PackageVersion>
+    <PackageId>Mono.Linq.Expressions</PackageId>
+    <Title>Mono.Linq.Expressions</Title>
+    <PackageDescription><![CDATA[## Mono.Linq.Expressions
 
 Mono.Linq.Expressions is an helper library to complement the System.Linq.Expressions namespace.
 
-It works on Mono >= 2.8, .net >= 4.0 and netstandard2.0.
+It works on Mono >= 2.8, .net >= 4.0 and netstandard2.0
 
 ## API
 
@@ -155,6 +165,67 @@ Expression<Func<User, bool>> isFemale = u => u.Gender == Gender.Female;
 
 Expression<Func<User, bool>> femalesOver18 = isOver18.AndAlso (isFemale);
 
-// >> femalesOver18.ToString ()
-// u => u.Age > 18 && u.Gender == Gender.Female
-```
+>> femalesOver18.ToString ()
+u => u.Age > 18 && u.Gender == Gender.Female
+]]></PackageDescription>
+    <PackageReleaseNotes>1.3.0.0 Compiled for NetStandard20
+
+Author:
+  Jb Evain (jbevain@novell.com)
+
+(C) 2010 Novell, Inc. (http://www.novell.com)
+(C) 2012 Jb Evain
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</PackageReleaseNotes>
+    <Copyright>Copyright © Jb Evain 2012-2018</Copyright>
+    <Authors>Jb Evain</Authors>
+    <Owners>Jb Evain</Owners>
+    <PackageProjectUrl>https://github.com/jbevain/mono.linq.expressions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jbevain/mono.linq.expressions</RepositoryUrl>
+    <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageTags>mono;linq;expressions;Lambda;ToString</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="dbg\**" />
+    <Compile Remove="Test\**" />
+    <Compile Remove="tools\**" />
+    <EmbeddedResource Remove="dbg\**" />
+    <EmbeddedResource Remove="Test\**" />
+    <EmbeddedResource Remove="tools\**" />
+    <None Remove="dbg\**" />
+    <None Remove="Test\**" />
+    <None Remove="tools\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="Mono.Linq.Expressions.nunit" />
+    <None Remove="Mono.Linq.Expressions.nuspec" />
+    <None Remove="Mono.Linq.Expressions.targets" />
+    <None Remove="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties" />
+  </ItemGroup>
+</Project>
